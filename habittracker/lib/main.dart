@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'core/themes/app_theme.dart';
-import '../screens/auth/signup_screen.dart';
+import '../screens/onboarding/onboarding.dart';
 
 void main() {
   runApp(const MyApp());
@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Habit Tracker',
       theme: AppTheme.lightTheme,
-      home: const SignupScreen(key: Key('signup_screen')),
+      home: const OnboardingScreen(key: Key('onboarding_screen')),
     );
   }
 }
