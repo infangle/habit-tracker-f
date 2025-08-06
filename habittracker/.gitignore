@@ -43,3 +43,23 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+
+# Firebase auto-generated config
+lib/firebase_options.dart
+
+
+# macOS & iOS CocoaPods
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+macos/Pods/
+macos/.symlinks/
+macos/Flutter/Flutter.framework
+
+# Firebase/Google Service files (already ignored but just in case)
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+
+# Local env/config
+.env
