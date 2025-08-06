@@ -1,194 +1,161 @@
 import 'package:flutter/material.dart';
-import '../../core/constants/app_colors.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../../providers/signup_provider.dart';
+import '../../core/constants/app_colors.dart';
+import '../dashboard/home.dart';
 
-class SignupScreen extends StatelessWidget {
+class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
 
   @override
+  State<SignupScreen> createState() => _SignupScreenState();
+}
+
+class _SignupScreenState extends State<SignupScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _usernameController = TextEditingController(); // Not used yet
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _usernameController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleSignUp(BuildContext context) async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final provider = Provider.of<SignupProvider>(context, listen: false);
+    await provider.signUp(_emailController.text, _passwordController.text);
+
+    if (provider.errorMessage == null) {
+      // ✅ Show success message
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Signup successful!')));
+
+      // ✅ Navigate to HomeScreen
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const HomeScreen()),
+      );
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<SignupProvider>(context);
+
     return Scaffold(
-      backgroundColor: AppColors.primary_white, // White background
+      backgroundColor: AppColors.primary_white,
       appBar: AppBar(
-        leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          icon: Icon(Icons.arrow_back),
-        ),
+        leading: BackButton(onPressed: () => Navigator.pop(context)),
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16),
           child: Column(
-            mainAxisSize: MainAxisSize.max, // Fill screen height
-            mainAxisAlignment: MainAxisAlignment.center, // Push Row to bottom
             children: [
-              Column(
-                children: [
-                  Text(
-                    'Create your account',
-                    style: TextStyle(
-                      fontSize: 24,
-                      color: AppColors.text,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                  SizedBox(height: 20),
-
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 10,
-                      ),
-                      minimumSize: Size(double.infinity, 40),
-                      backgroundColor: AppColors.google_button, // #EBEAEC
-                      foregroundColor: AppColors.text, // Dark text/icon
-                    ),
-                    onPressed: () {
-                      // TODO: Implement login with Google
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SvgPicture.asset(
-                          'assets/icons/google.svg',
-                          width: 24,
-                          height: 24,
-                        ),
-                        SizedBox(width: 10),
-                        Text(
-                          'Continue with Google',
-                          style: TextStyle(color: AppColors.text),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  Text(
-                    'OR SIGNUP WITH EMAIL',
-                    style: TextStyle(
-                      color: AppColors.button_text,
-                      fontFamily: 'poppins',
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  Form(
-                    child: Column(
-                      children: [
-                        TextFormField(
-                          decoration: InputDecoration(
-                            labelText: 'Username',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16.0),
-                            ),
-                            filled: true,
-                            fillColor: AppColors.text_field, // #A1A4B2
-                          ),
-                          keyboardType: TextInputType.emailAddress,
-                        ),
-                        SizedBox(height: 10),
-                        TextFormField(
-                          decoration: InputDecoration(
-                            labelText: 'Email address',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16.0),
-                            ),
-                            filled: true,
-                            fillColor: AppColors.text_field, // #A1A4B2
-                          ),
-                          keyboardType: TextInputType.emailAddress,
-                        ),
-                        SizedBox(height: 10),
-                        TextFormField(
-                          decoration: InputDecoration(
-                            labelText: 'Password',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16.0),
-                            ),
-                            filled: true,
-                            fillColor: AppColors.text_field, // #A1A4B2
-                          ),
-                          obscureText: true,
-                        ),
-                        SizedBox(height: 20),
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 10,
-                            ),
-                            minimumSize: Size(double.infinity, 40),
-                            backgroundColor: AppColors.login_button, // #8E97FD
-                            foregroundColor:
-                                AppColors.primary_white, // White text
-                          ),
-                          onPressed: () {
-                            // TODO: Implement login with email
-                          },
-                          child: Text('SIGN UP'),
-                        ),
-                        SizedBox(height: 10),
-                        Row(
-                          children: [
-                            Text(
-                              'I have read the ',
-                              style: TextStyle(
-                                color: AppColors.text,
-                                fontFamily: 'Poppins',
-                                fontSize: 14,
-                              ),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                // TODO: Open terms and conditions page
-                              },
-                              child: Text(
-                                'Privacy Policy',
-                                style: TextStyle(
-                                  color: AppColors.login_button,
-                                  fontFamily: 'Poppins',
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+              const Text(
+                'Create your account',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900),
               ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  // TODO: Google sign-in logic
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.google_button,
+                  minimumSize: const Size(double.infinity, 40),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SvgPicture.asset(
+                      'assets/icons/google.svg',
+                      width: 24,
+                      height: 24,
+                    ),
+                    const SizedBox(width: 10),
+                    const Text('Continue with Google'),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              const Text('OR SIGNUP WITH EMAIL'),
+              const SizedBox(height: 20),
+
+              Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    TextFormField(
+                      controller: _usernameController,
+                      decoration: const InputDecoration(labelText: 'Username'),
+                      validator: (value) => value == null || value.isEmpty
+                          ? 'Enter a username'
+                          : null,
+                    ),
+                    const SizedBox(height: 10),
+                    TextFormField(
+                      controller: _emailController,
+                      decoration: const InputDecoration(
+                        labelText: 'Email address',
+                      ),
+                      validator: (value) =>
+                          value == null || !value.contains('@')
+                          ? 'Enter a valid email'
+                          : null,
+                    ),
+                    const SizedBox(height: 10),
+                    TextFormField(
+                      controller: _passwordController,
+                      decoration: const InputDecoration(labelText: 'Password'),
+                      obscureText: true,
+                      validator: (value) => value == null || value.length < 6
+                          ? 'Minimum 6 characters'
+                          : null,
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: provider.isLoading
+                          ? null
+                          : () => _handleSignUp(context),
+                      child: provider.isLoading
+                          ? const CircularProgressIndicator()
+                          : const Text('SIGN UP'),
+                    ),
+                    if (provider.errorMessage != null) ...[
+                      const SizedBox(height: 10),
+                      Text(
+                        provider.errorMessage!,
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+
+              const Spacer(),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    'ALREADY HAVE AN ACCOUNT?',
-                    style: TextStyle(
-                      color: AppColors.button_text,
-                      fontFamily: 'Poppins',
-                      fontSize: 14,
-                    ),
-                  ),
+                  const Text('ALREADY HAVE AN ACCOUNT?'),
                   TextButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/login');
-                    },
+                    onPressed: () => Navigator.pushNamed(context, '/login'),
                     child: Text(
                       'LOGIN',
-                      style: TextStyle(
-                        color: AppColors.login_button,
-                        fontFamily: 'Poppins',
-                        fontSize: 14,
-                      ),
+                      style: TextStyle(color: AppColors.login_button),
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: 20), // Bottom padding
             ],
           ),
         ),
