@@ -12,12 +12,6 @@ class OnboardingScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SvgPicture.asset(
-              'assets/logo/logo_mini.svg',
-              width: 120,
-              height: 120,
-              fit: BoxFit.contain,
-            ),
             const SizedBox(height: 20),
             const Text(
               'Hello, Welcome to Main Habbits',
