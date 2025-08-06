@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'core/themes/app_theme.dart';
-import '../screens/auth/signup_screen.dart';
+import 'screens/onboarding/onboarding.dart';
+import 'screens/auth/login_screen.dart';
+import 'screens/auth/signup_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -14,7 +16,11 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Habit Tracker',
       theme: AppTheme.lightTheme,
-      home: const SignupScreen(key: Key('signup_screen')),
+      home: const OnboardingScreen(key: Key('onboarding_screen')),
+      routes: {
+        '/login': (context) => const LoginScreen(key: Key('login_screen')),
+        '/signup': (context) => const SignupScreen(key: Key('signup_screen')),
+      },
     );
   }
 }
