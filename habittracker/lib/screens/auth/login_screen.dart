@@ -35,37 +35,7 @@ class LoginScreen extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 20),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 10,
-                      ),
-                      minimumSize: Size(double.infinity, 40),
-                      backgroundColor: AppColors.facebook_button, // #7583CA
-                      foregroundColor:
-                          AppColors.primary_white, // White text/icon
-                    ),
-                    onPressed: () {
-                      // TODO: Implement login with Facebook
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SvgPicture.asset(
-                          'assets/icons/facebook.svg',
-                          width: 24,
-                          height: 24,
-                        ),
-                        SizedBox(width: 10),
-                        Text(
-                          'Continue with Facebook',
-                          style: TextStyle(color: AppColors.primary_white),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 10),
+
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.symmetric(
