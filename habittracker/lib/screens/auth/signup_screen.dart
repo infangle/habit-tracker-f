@@ -1,231 +1,216 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/themes/app_theme.dart';
-import 'auth_validators.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
-class SignupScreen extends StatefulWidget {
+class SignupScreen extends StatelessWidget {
   const SignupScreen({super.key});
-
-  @override
-  State<SignupScreen> createState() => _SignupScreenState();
-}
-
-class _SignupScreenState extends State<SignupScreen> {
-  bool _obscureText = true;
-  final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.primary_white, // White background
       appBar: AppBar(
-        leading: const Icon(Icons.arrow_back),
-        title: const Text(
-          'Create Account',
-          style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: Icon(Icons.arrow_back),
         ),
-        backgroundColor: AppColors.primary_white,
-        foregroundColor: AppColors.primary,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Let\'s get you started',
-              style: TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: AppColors.text,
-              ),
-            ),
-            const SizedBox(height: 20),
-            Form(
-              key: _formKey,
-              child: Column(
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.max, // Fill screen height
+            mainAxisAlignment: MainAxisAlignment.center, // Push Row to bottom
+            children: [
+              Column(
                 children: [
-                  TextFormField(
-                    controller: _nameController,
-                    decoration: InputDecoration(
-                      labelText: "Name",
-                      hintText: 'John Doe',
-                      labelStyle: const TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: 16,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(16)),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(16)),
-                        borderSide: BorderSide(
-                          color: AppColors.primary_blue,
-                          width: 2,
-                        ),
-                      ),
-                      errorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(16)),
-                        borderSide: BorderSide(color: Colors.red, width: 1),
-                      ),
-                      focusedErrorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(16)),
-                        borderSide: BorderSide(color: Colors.red, width: 2),
-                      ),
-                      errorStyle: const TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: 12,
-                        color: Colors.red,
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
+                  Text(
+                    'Create your account',
+                    style: TextStyle(
+                      fontSize: 24,
+                      color: AppColors.text,
+                      fontWeight: FontWeight.w900,
                     ),
-                    validator: validateName,
                   ),
-                  const SizedBox(height: 20),
-                  TextFormField(
-                    controller: _emailController,
-                    decoration: InputDecoration(
-                      labelText: "Email",
-                      hintText: 'John.doe@gmail.com',
-                      labelStyle: const TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: 16,
+                  SizedBox(height: 20),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 10,
                       ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(16)),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(16)),
-                        borderSide: BorderSide(
-                          color: AppColors.primary_blue,
-                          width: 2,
-                        ),
-                      ),
-                      errorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(16)),
-                        borderSide: BorderSide(color: Colors.red, width: 1),
-                      ),
-                      focusedErrorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(16)),
-                        borderSide: BorderSide(color: Colors.red, width: 2),
-                      ),
-                      errorStyle: const TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: 12,
-                        color: Colors.red,
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
+                      minimumSize: Size(double.infinity, 40),
+                      backgroundColor: AppColors.facebook_button, // #7583CA
+                      foregroundColor:
+                          AppColors.primary_white, // White text/icon
                     ),
-                    validator: validateEmail,
-                    keyboardType: TextInputType.emailAddress,
-                  ),
-                  const SizedBox(height: 20),
-                  TextFormField(
-                    controller: _passwordController,
-                    obscureText: _obscureText,
-                    decoration: InputDecoration(
-                      labelText: 'Password',
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscureText
-                              ? Icons.visibility
-                              : Icons.visibility_off,
-                          color: AppColors.primary,
+                    onPressed: () {
+                      // TODO: Implement login with Facebook
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SvgPicture.asset(
+                          'assets/icons/facebook.svg',
+                          width: 24,
+                          height: 24,
                         ),
-                        onPressed: () {
-                          setState(() {
-                            _obscureText = !_obscureText;
-                          });
-                        },
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(16)),
-                        borderSide: BorderSide(
-                          color: AppColors.primary_blue,
-                          width: 2,
+                        SizedBox(width: 10),
+                        Text(
+                          'Continue with Facebook',
+                          style: TextStyle(color: AppColors.primary_white),
                         ),
-                      ),
-                      errorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(16)),
-                        borderSide: BorderSide(color: Colors.red, width: 1),
-                      ),
-                      focusedErrorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(16)),
-                        borderSide: BorderSide(color: Colors.red, width: 2),
-                      ),
-                      errorStyle: const TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: 12,
-                        color: Colors.red,
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
-                      labelStyle: const TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: 16,
-                      ),
+                      ],
                     ),
-                    validator: validatePassword,
                   ),
-                  const SizedBox(height: 40),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          // TODO: Implement Firebase signup logic
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Form is valid! Ready for signup.'),
-                              backgroundColor: AppColors.primary_blue,
+                  SizedBox(height: 10),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 10,
+                      ),
+                      minimumSize: Size(double.infinity, 40),
+                      backgroundColor: AppColors.google_button, // #EBEAEC
+                      foregroundColor: AppColors.text, // Dark text/icon
+                    ),
+                    onPressed: () {
+                      // TODO: Implement login with Google
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SvgPicture.asset(
+                          'assets/icons/google.svg',
+                          width: 24,
+                          height: 24,
+                        ),
+                        SizedBox(width: 10),
+                        Text(
+                          'Continue with Google',
+                          style: TextStyle(color: AppColors.text),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Text(
+                    'OR SIGNUP WITH EMAIL',
+                    style: TextStyle(
+                      color: AppColors.button_text,
+                      fontFamily: 'poppins',
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Form(
+                    child: Column(
+                      children: [
+                        TextFormField(
+                          decoration: InputDecoration(
+                            labelText: 'Username',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16.0),
                             ),
-                          );
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary_blue,
-                        padding: const EdgeInsets.all(16),
-                        textStyle: const TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                            filled: true,
+                            fillColor: AppColors.text_field, // #A1A4B2
+                          ),
+                          keyboardType: TextInputType.emailAddress,
                         ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
+                        SizedBox(height: 10),
+                        TextFormField(
+                          decoration: InputDecoration(
+                            labelText: 'Email address',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16.0),
+                            ),
+                            filled: true,
+                            fillColor: AppColors.text_field, // #A1A4B2
+                          ),
+                          keyboardType: TextInputType.emailAddress,
                         ),
-                      ),
-                      child: const Text(
-                        'Sign Up',
-                        style: TextStyle(color: AppColors.primary_white),
-                      ),
+                        SizedBox(height: 10),
+                        TextFormField(
+                          decoration: InputDecoration(
+                            labelText: 'Password',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16.0),
+                            ),
+                            filled: true,
+                            fillColor: AppColors.text_field, // #A1A4B2
+                          ),
+                          obscureText: true,
+                        ),
+                        SizedBox(height: 20),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 10,
+                            ),
+                            minimumSize: Size(double.infinity, 40),
+                            backgroundColor: AppColors.login_button, // #8E97FD
+                            foregroundColor:
+                                AppColors.primary_white, // White text
+                          ),
+                          onPressed: () {
+                            // TODO: Implement login with email
+                          },
+                          child: Text('SIGN UP'),
+                        ),
+                        SizedBox(height: 10),
+                        Row(
+                          children: [
+                            Text(
+                              'I have read the ',
+                              style: TextStyle(
+                                color: AppColors.text,
+                                fontFamily: 'Poppins',
+                                fontSize: 14,
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                // TODO: Open terms and conditions page
+                              },
+                              child: Text(
+                                'Privacy Policy',
+                                style: TextStyle(
+                                  color: AppColors.login_button,
+                                  fontFamily: 'Poppins',
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 20),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'ALREADY HAVE AN ACCOUNT?',
+                    style: TextStyle(
+                      color: AppColors.button_text,
+                      fontFamily: 'Poppins',
+                      fontSize: 14,
+                    ),
+                  ),
                   TextButton(
                     onPressed: () {
                       Navigator.pushNamed(context, '/login');
                     },
-                    child: const Text(
-                      'Already have an account? Login',
+                    child: Text(
+                      'LOGIN',
                       style: TextStyle(
-                        color: AppColors.primary_blue,
+                        color: AppColors.login_button,
                         fontFamily: 'Poppins',
                         fontSize: 14,
                       ),
@@ -233,8 +218,9 @@ class _SignupScreenState extends State<SignupScreen> {
                   ),
                 ],
               ),
-            ),
-          ],
+              SizedBox(height: 20), // Bottom padding
+            ],
+          ),
         ),
       ),
     );

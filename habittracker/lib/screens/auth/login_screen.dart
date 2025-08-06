@@ -181,12 +181,12 @@ class LoginScreen extends StatelessWidget {
                   ),
                   TextButton(
                     onPressed: () {
-                      // TODO: Navigate to signup screen
+                      Navigator.pushNamed(context, '/signup');
                     },
                     child: Text(
                       'SIGN UP',
                       style: TextStyle(
-                        color: AppColors.primary_blue,
+                        color: AppColors.login_button,
                         fontFamily: 'Poppins',
                         fontSize: 14,
                       ),
