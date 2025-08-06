@@ -1,25 +1,22 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/themes/app_theme.dart';
 import 'auth_validators.dart';
 
-class SignupScreen extends StatefulWidget {
-  const SignupScreen({super.key});
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
 
   @override
-  State<SignupScreen> createState() => _SignupScreenState();
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _SignupScreenState extends State<SignupScreen> {
+class _LoginScreenState extends State<LoginScreen> {
   bool _obscureText = true;
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
   @override
   void dispose() {
-    _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -31,7 +28,7 @@ class _SignupScreenState extends State<SignupScreen> {
       appBar: AppBar(
         leading: const Icon(Icons.arrow_back),
         title: const Text(
-          'Create Account',
+          'Welcome Back',
           style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold),
         ),
         backgroundColor: AppColors.primary_white,
@@ -57,44 +54,6 @@ class _SignupScreenState extends State<SignupScreen> {
               key: _formKey,
               child: Column(
                 children: [
-                  TextFormField(
-                    controller: _nameController,
-                    decoration: InputDecoration(
-                      labelText: "Name",
-                      hintText: 'John Doe',
-                      labelStyle: const TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: 16,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(16)),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(16)),
-                        borderSide: BorderSide(
-                          color: AppColors.primary_blue,
-                          width: 2,
-                        ),
-                      ),
-                      errorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(16)),
-                        borderSide: BorderSide(color: Colors.red, width: 1),
-                      ),
-                      focusedErrorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(16)),
-                        borderSide: BorderSide(color: Colors.red, width: 2),
-                      ),
-                      errorStyle: const TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: 12,
-                        color: Colors.red,
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
-                    ),
-                    validator: validateName,
-                  ),
-                  const SizedBox(height: 20),
                   TextFormField(
                     controller: _emailController,
                     decoration: InputDecoration(
@@ -212,7 +171,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         ),
                       ),
                       child: const Text(
-                        'Sign Up',
+                        'Login',
                         style: TextStyle(color: AppColors.primary_white),
                       ),
                     ),
@@ -220,10 +179,10 @@ class _SignupScreenState extends State<SignupScreen> {
                   const SizedBox(height: 20),
                   TextButton(
                     onPressed: () {
-                      Navigator.pushNamed(context, '/login');
+                      Navigator.pushNamed(context, '/signup');
                     },
                     child: const Text(
-                      'Already have an account? Login',
+                      'Don\'t have an account? Sign Up',
                       style: TextStyle(
                         color: AppColors.primary_blue,
                         fontFamily: 'Poppins',
