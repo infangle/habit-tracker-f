@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-class SignupScreen extends StatelessWidget {
-  const SignupScreen({super.key});
+class LoginScreen extends StatelessWidget {
+  const LoginScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +27,7 @@ class SignupScreen extends StatelessWidget {
               Column(
                 children: [
                   Text(
-                    'Create your account',
+                    'Welcome Back!',
                     style: TextStyle(
                       fontSize: 24,
                       color: AppColors.text,
@@ -97,7 +97,7 @@ class SignupScreen extends StatelessWidget {
                   ),
                   SizedBox(height: 20),
                   Text(
-                    'OR SIGNUP WITH EMAIL',
+                    'OR LOGIN WITH EMAIL',
                     style: TextStyle(
                       color: AppColors.button_text,
                       fontFamily: 'poppins',
@@ -109,18 +109,6 @@ class SignupScreen extends StatelessWidget {
                   Form(
                     child: Column(
                       children: [
-                        TextFormField(
-                          decoration: InputDecoration(
-                            labelText: 'Username',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16.0),
-                            ),
-                            filled: true,
-                            fillColor: AppColors.text_field, // #A1A4B2
-                          ),
-                          keyboardType: TextInputType.emailAddress,
-                        ),
-                        SizedBox(height: 10),
                         TextFormField(
                           decoration: InputDecoration(
                             labelText: 'Email address',
@@ -159,33 +147,21 @@ class SignupScreen extends StatelessWidget {
                           onPressed: () {
                             // TODO: Implement login with email
                           },
-                          child: Text('SIGN UP'),
+                          child: Text('LOG IN'),
                         ),
                         SizedBox(height: 10),
-                        Row(
-                          children: [
-                            Text(
-                              'I have read the ',
-                              style: TextStyle(
-                                color: AppColors.text,
-                                fontFamily: 'Poppins',
-                                fontSize: 14,
-                              ),
+                        TextButton(
+                          onPressed: () {
+                            // TODO: Navigate to forgot password screen
+                          },
+                          child: Text(
+                            'Forgot Password?',
+                            style: TextStyle(
+                              color: AppColors.text,
+                              fontFamily: 'Poppins',
+                              fontSize: 14,
                             ),
-                            TextButton(
-                              onPressed: () {
-                                // TODO: Open terms and conditions page
-                              },
-                              child: Text(
-                                'Privacy Policy',
-                                style: TextStyle(
-                                  color: AppColors.login_button,
-                                  fontFamily: 'Poppins',
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                       ],
                     ),
@@ -196,7 +172,7 @@ class SignupScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'ALREADY HAVE AN ACCOUNT?',
+                    'DON\'T HAVE AN ACCOUNT?',
                     style: TextStyle(
                       color: AppColors.button_text,
                       fontFamily: 'Poppins',
@@ -205,10 +181,10 @@ class SignupScreen extends StatelessWidget {
                   ),
                   TextButton(
                     onPressed: () {
-                      Navigator.pushNamed(context, '/login');
+                      Navigator.pushNamed(context, '/signup');
                     },
                     child: Text(
-                      'LOGIN',
+                      'SIGN UP',
                       style: TextStyle(
                         color: AppColors.login_button,
                         fontFamily: 'Poppins',
