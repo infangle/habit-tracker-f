@@ -1,188 +1,190 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
-import 'auth_validators.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
-
-  @override
-  State<LoginScreen> createState() => _LoginScreenState();
-}
-
-class _LoginScreenState extends State<LoginScreen> {
-  bool _obscureText = true;
-  final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.primary_white, // White background
       appBar: AppBar(
-        leading: const Icon(Icons.arrow_back),
-        title: const Text(
-          'Welcome Back',
-          style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: Icon(Icons.arrow_back),
         ),
-        backgroundColor: AppColors.primary_white,
-        foregroundColor: AppColors.primary,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Let\'s get you started',
-              style: TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: AppColors.text,
-              ),
-            ),
-            const SizedBox(height: 20),
-            Form(
-              key: _formKey,
-              child: Column(
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.max, // Fill screen height
+            mainAxisAlignment: MainAxisAlignment.center, // Push Row to bottom
+            children: [
+              Column(
                 children: [
-                  TextFormField(
-                    controller: _emailController,
-                    decoration: InputDecoration(
-                      labelText: "Email",
-                      hintText: 'John.doe@gmail.com',
-                      labelStyle: const TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: 16,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(16)),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(16)),
-                        borderSide: BorderSide(
-                          color: AppColors.primary_blue,
-                          width: 2,
-                        ),
-                      ),
-                      errorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(16)),
-                        borderSide: BorderSide(color: Colors.red, width: 1),
-                      ),
-                      focusedErrorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(16)),
-                        borderSide: BorderSide(color: Colors.red, width: 2),
-                      ),
-                      errorStyle: const TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: 12,
-                        color: Colors.red,
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
+                  Text(
+                    'Welcome Back!',
+                    style: TextStyle(
+                      fontSize: 24,
+                      color: AppColors.text,
+                      fontWeight: FontWeight.w900,
                     ),
-                    validator: validateEmail,
-                    keyboardType: TextInputType.emailAddress,
                   ),
-                  const SizedBox(height: 20),
-                  TextFormField(
-                    controller: _passwordController,
-                    obscureText: _obscureText,
-                    decoration: InputDecoration(
-                      labelText: 'Password',
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscureText
-                              ? Icons.visibility
-                              : Icons.visibility_off,
-                          color: AppColors.primary,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _obscureText = !_obscureText;
-                          });
-                        },
+                  SizedBox(height: 20),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 10,
                       ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(16)),
-                        borderSide: BorderSide(
-                          color: AppColors.primary_blue,
-                          width: 2,
-                        ),
-                      ),
-                      errorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(16)),
-                        borderSide: BorderSide(color: Colors.red, width: 1),
-                      ),
-                      focusedErrorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(16)),
-                        borderSide: BorderSide(color: Colors.red, width: 2),
-                      ),
-                      errorStyle: const TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: 12,
-                        color: Colors.red,
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
-                      labelStyle: const TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: 16,
-                      ),
+                      minimumSize: Size(double.infinity, 40),
+                      backgroundColor: AppColors.facebook_button, // #7583CA
+                      foregroundColor:
+                          AppColors.primary_white, // White text/icon
                     ),
-                    validator: validatePassword,
+                    onPressed: () {
+                      // TODO: Implement login with Facebook
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SvgPicture.asset(
+                          'assets/icons/facebook.svg',
+                          width: 24,
+                          height: 24,
+                        ),
+                        SizedBox(width: 10),
+                        Text(
+                          'Continue with Facebook',
+                          style: TextStyle(color: AppColors.primary_white),
+                        ),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 40),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          // TODO: Implement Firebase signup logic
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Form is valid! Ready for signup.'),
-                              backgroundColor: AppColors.primary_blue,
+                  SizedBox(height: 10),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 10,
+                      ),
+                      minimumSize: Size(double.infinity, 40),
+                      backgroundColor: AppColors.google_button, // #EBEAEC
+                      foregroundColor: AppColors.text, // Dark text/icon
+                    ),
+                    onPressed: () {
+                      // TODO: Implement login with Google
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SvgPicture.asset(
+                          'assets/icons/google.svg',
+                          width: 24,
+                          height: 24,
+                        ),
+                        SizedBox(width: 10),
+                        Text(
+                          'Continue with Google',
+                          style: TextStyle(color: AppColors.text),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Text(
+                    'OR LOGIN WITH EMAIL',
+                    style: TextStyle(
+                      color: AppColors.button_text,
+                      fontFamily: 'poppins',
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Form(
+                    child: Column(
+                      children: [
+                        TextFormField(
+                          decoration: InputDecoration(
+                            labelText: 'Email address',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16.0),
                             ),
-                          );
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary_blue,
-                        padding: const EdgeInsets.all(16),
-                        textStyle: const TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                            filled: true,
+                            fillColor: AppColors.text_field, // #A1A4B2
+                          ),
+                          keyboardType: TextInputType.emailAddress,
                         ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
+                        SizedBox(height: 10),
+                        TextFormField(
+                          decoration: InputDecoration(
+                            labelText: 'Password',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16.0),
+                            ),
+                            filled: true,
+                            fillColor: AppColors.text_field, // #A1A4B2
+                          ),
+                          obscureText: true,
                         ),
-                      ),
-                      child: const Text(
-                        'Login',
-                        style: TextStyle(color: AppColors.primary_white),
-                      ),
+                        SizedBox(height: 20),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 10,
+                            ),
+                            minimumSize: Size(double.infinity, 40),
+                            backgroundColor: AppColors.login_button, // #8E97FD
+                            foregroundColor:
+                                AppColors.primary_white, // White text
+                          ),
+                          onPressed: () {
+                            // TODO: Implement login with email
+                          },
+                          child: Text('LOG IN'),
+                        ),
+                        SizedBox(height: 10),
+                        TextButton(
+                          onPressed: () {
+                            // TODO: Navigate to forgot password screen
+                          },
+                          child: Text(
+                            'Forgot Password?',
+                            style: TextStyle(
+                              color: AppColors.text,
+                              fontFamily: 'Poppins',
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 20),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'DON\'T HAVE AN ACCOUNT?',
+                    style: TextStyle(
+                      color: AppColors.button_text,
+                      fontFamily: 'Poppins',
+                      fontSize: 14,
+                    ),
+                  ),
                   TextButton(
                     onPressed: () {
-                      Navigator.pushNamed(context, '/signup');
+                      // TODO: Navigate to signup screen
                     },
-                    child: const Text(
-                      'Don\'t have an account? Sign Up',
+                    child: Text(
+                      'SIGN UP',
                       style: TextStyle(
                         color: AppColors.primary_blue,
                         fontFamily: 'Poppins',
@@ -192,8 +194,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ],
               ),
-            ),
-          ],
+              SizedBox(height: 20), // Bottom padding
+            ],
+          ),
         ),
       ),
     );
