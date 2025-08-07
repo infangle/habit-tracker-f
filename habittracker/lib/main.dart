@@ -6,7 +6,7 @@ import 'firebase_options.dart';
 import 'screens/onboarding/onboarding.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/signup_screen.dart';
-import 'providers/signup_provider.dart';
+import 'providers/auth_provider.dart';
 import 'screens/dashboard/home.dart';
 
 void main() async {
@@ -22,7 +22,7 @@ void main() async {
 
   runApp(
     MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => SignupProvider())],
+      providers: [ChangeNotifierProvider(create: (_) => AuthProvider())],
       child: const MyApp(),
     ),
   );
@@ -39,7 +39,7 @@ class MyApp extends StatelessWidget {
       home: const OnboardingScreen(key: Key('onboarding_screen')),
       routes: {
         '/login': (context) => const LoginScreen(key: Key('login_screen')),
-        '/signup': (context) => Consumer<SignupProvider>(
+        '/signup': (context) => Consumer<AuthProvider>(
           builder: (context, signupProvider, child) {
             return SignupScreen(key: Key('signup_screen'));
           },

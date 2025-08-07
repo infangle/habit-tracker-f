@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import '../../providers/signup_provider.dart';
+import '../../providers/auth_provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../dashboard/home.dart';
 
@@ -29,27 +28,30 @@ class _SignupScreenState extends State<SignupScreen> {
   Future<void> _handleSignUp(BuildContext context) async {
     if (!_formKey.currentState!.validate()) return;
 
-    final provider = Provider.of<SignupProvider>(context, listen: false);
-    await provider.signUp(_emailController.text, _passwordController.text);
+    final provider = Provider.of<AuthProvider>(context, listen: false);
 
-    if (provider.errorMessage == null) {
-      // ✅ Show success message
+    if (provider.isLoading) return;
+
+    try {
+      await provider.signUp(_emailController.text, _passwordController.text);
+
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Signup successful!')));
 
-      // ✅ Navigate to HomeScreen
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const HomeScreen()),
       );
+    } catch (e) {
+      // Handle any exceptions that might be thrown by the signUp method
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<SignupProvider>(context);
+    final provider = Provider.of<AuthProvider>(context);
 
     return Scaffold(
       backgroundColor: AppColors.primary_white,

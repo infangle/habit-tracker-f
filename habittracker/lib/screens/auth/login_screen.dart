@@ -1,12 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import '../../providers/auth_provider.dart';
+import '../dashboard/home.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
   @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleLogin(BuildContext context) async {
+    final provider = Provider.of<AuthProvider>(context, listen: false);
+
+    if (provider.errorMessage == null) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const HomeScreen()),
+      );
+    }
+  }
+
   Widget build(BuildContext context) {
+    final provider = Provider.of<AuthProvider>(context, listen: false);
+
     return Scaffold(
       backgroundColor: AppColors.primary_white, // White background
       appBar: AppBar(
@@ -84,11 +113,20 @@ class LoginScreen extends StatelessWidget {
                             foregroundColor:
                                 AppColors.primary_white, // White text
                           ),
-                          onPressed: () {
-                            // TODO: Implement login with email
-                          },
-                          child: Text('LOG IN'),
+                          onPressed: provider.isLoading
+                              ? null
+                              : () => _handleLogin(context),
+                          child: provider.isLoading
+                              ? const CircularProgressIndicator()
+                              : const Text('LOG IN'),
                         ),
+                        if (provider.errorMessage != null) ...[
+                          SizedBox(height: 10),
+                          Text(
+                            provider.errorMessage!,
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                        ],
                         SizedBox(height: 10),
                         TextButton(
                           onPressed: () {
