@@ -36,36 +36,6 @@ class LoginScreen extends StatelessWidget {
                   ),
                   SizedBox(height: 20),
 
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 10,
-                      ),
-                      minimumSize: Size(double.infinity, 40),
-                      backgroundColor: AppColors.google_button, // #EBEAEC
-                      foregroundColor: AppColors.text, // Dark text/icon
-                    ),
-                    onPressed: () {
-                      // TODO: Implement login with Google
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SvgPicture.asset(
-                          'assets/icons/google.svg',
-                          width: 24,
-                          height: 24,
-                        ),
-                        SizedBox(width: 10),
-                        Text(
-                          'Continue with Google',
-                          style: TextStyle(color: AppColors.text),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 20),
                   Text(
                     'OR LOGIN WITH EMAIL',
                     style: TextStyle(

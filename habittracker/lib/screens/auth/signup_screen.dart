@@ -65,28 +65,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 'Create your account',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900),
               ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  // TODO: Google sign-in logic
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.google_button,
-                  minimumSize: const Size(double.infinity, 40),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SvgPicture.asset(
-                      'assets/icons/google.svg',
-                      width: 24,
-                      height: 24,
-                    ),
-                    const SizedBox(width: 10),
-                    const Text('Continue with Google'),
-                  ],
-                ),
-              ),
+
               const SizedBox(height: 20),
               const Text('OR SIGNUP WITH EMAIL'),
               const SizedBox(height: 20),
