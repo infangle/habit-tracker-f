@@ -1,27 +1,17 @@
 import 'package:flutter/material.dart';
-
-// Placeholder Habit class for now
-class Habit {
-  final String name;
-
-  Habit({required this.name});
-}
+import '../../../models/habit.dart';
 
 class HabitCard extends StatelessWidget {
   final Habit habit;
+  final Function(bool?) onToggle;
 
-  const HabitCard({super.key, required this.habit});
+  const HabitCard({super.key, required this.habit, required this.onToggle});
 
   @override
   Widget build(BuildContext context) {
     return Card(
       child: ListTile(
-        leading: Checkbox(
-          value: false, // Replace with actual completion status
-          onChanged: (value) {
-            // TODO: Handle habit completion
-          },
-        ),
+        leading: Checkbox(value: habit.isCompleted, onChanged: onToggle),
         title: Text(habit.name),
         trailing: PopupMenuButton(
           itemBuilder: (context) => [

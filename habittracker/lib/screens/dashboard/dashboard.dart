@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../dashboard/widgets/habit_list.dart';
 import '../dashboard/widgets/progress_summary.dart';
-import '../dashboard/widgets/habit_card.dart';
+import '../dashboard/widgets/habit_form.dart';
+import '../../models/habit.dart';
 import '../../core/constants/app_colors.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -15,6 +16,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   late String _currentTime;
   late Timer _timer;
   String? _username;
+  List<Habit> habits = [];
 
   @override
   void initState() {
@@ -24,6 +26,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
         FirebaseAuth.instance.currentUser?.displayName ??
         FirebaseAuth.instance.currentUser?.email?.split('@')[0] ??
         'User';
+
+    // Initialize habits with dummy data
+    habits = [
+      Habit(id: '1', name: 'Morning Exercise', frequency: 'Daily'),
+      Habit(id: '2', name: 'Read 30 minutes', frequency: 'Daily'),
+      Habit(id: '3', name: 'Drink 8 glasses of water', frequency: 'Daily'),
+      Habit(id: '4', name: 'Meditate 10 minutes', frequency: 'Daily'),
+      Habit(id: '5', name: 'Practice coding', frequency: 'Daily'),
+    ];
+
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
       setState(() {
         _currentTime = _formatDateTime(DateTime.now());
@@ -144,13 +156,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Container(
                   height: 300,
                   child: HabitList(
-                    habits: [
-                      Habit(name: 'Morning Exercise'),
-                      Habit(name: 'Read 30 minutes'),
-                      Habit(name: 'Drink 8 glasses of water'),
-                      Habit(name: 'Meditate 10 minutes'),
-                      Habit(name: 'Practice coding'),
-                    ],
+                    habits: habits,
+                    onToggle: (index, value) {
+                      setState(() {
+                        habits[index].isCompleted = value ?? false;
+                      });
+                    },
                   ),
                 ),
               ],
@@ -165,13 +176,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
             context: context,
             builder: (context) => AlertDialog(
               title: Text('Add New Habit'),
-              content: Text('Add habit functionality will be implemented here'),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text('OK'),
+              content: SingleChildScrollView(
+                child: HabitForm(
+                  onSave: (newHabit) {
+                    setState(() {
+                      habits.add(newHabit);
+                    });
+                    Navigator.pop(context);
+                  },
+                  onCancel: () => Navigator.pop(context),
                 ),
-              ],
+              ),
             ),
           );
         },

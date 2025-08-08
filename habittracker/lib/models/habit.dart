@@ -3,11 +3,13 @@ class Habit {
   final String name;
   final String frequency;
   final DateTime? startDate;
+  bool isCompleted;
 
   Habit({
     required this.id,
     required this.name,
     required this.frequency,
     this.startDate,
+    this.isCompleted = false,
   });
 }
