@@ -7,6 +7,7 @@ import 'screens/onboarding/onboarding.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/signup_screen.dart';
 import 'providers/auth_provider.dart';
+import 'providers/habit_provider.dart';
 import 'screens/dashboard/dashboard.dart';
 
 void main() async {
@@ -22,7 +23,10 @@ void main() async {
 
   runApp(
     MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => AuthProvider())],
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => HabitProvider()),
+      ],
       child: const MyApp(),
     ),
   );
