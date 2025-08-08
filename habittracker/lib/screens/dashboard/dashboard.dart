@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import '../dashboard/widgets/habit_list.dart';
 import '../dashboard/widgets/progress_summary.dart';
 import '../dashboard/widgets/habit_form.dart';
-import '../../models/habit.dart';
+// import '../../models/habit.dart';
 import '../../core/constants/app_colors.dart';
 import '../../providers/habit_provider.dart';
 
@@ -18,7 +18,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   late String _currentTime;
   late Timer _timer;
   String? _username;
-  List<Habit> habits = [];
 
   @override
   void initState() {
@@ -164,12 +163,37 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 SizedBox(height: 8),
                 Container(
                   height: 300,
-                  child: HabitList(
-                    habits: habits,
-                    onToggle: (index, value) {
-                      setState(() {
-                        habits[index].isCompleted = value ?? false;
-                      });
+                  child: Consumer<HabitProvider>(
+                    builder: (context, habitProvider, child) {
+                      if (habitProvider.isLoading) {
+                        return Center(child: CircularProgressIndicator());
+                      }
+
+                      if (habitProvider.error != null) {
+                        return Center(
+                          child: Text(
+                            'Error: ${habitProvider.error}',
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        );
+                      }
+
+                      if (habitProvider.habits.isEmpty) {
+                        return Center(
+                          child: Text(
+                            'No habits yet. Add your first habit!',
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        );
+                      }
+
+                      return HabitList(
+                        habits: habitProvider.habits,
+                        onToggle: (index, value) async {
+                          final habit = habitProvider.habits[index];
+                          await habitProvider.toggleHabitCompletion(habit);
+                        },
+                      );
                     },
                   ),
                 ),
