@@ -4,8 +4,14 @@ import '../../../models/habit.dart';
 class HabitForm extends StatefulWidget {
   final Function(Habit) onSave;
   final VoidCallback onCancel;
+  final String userId;
 
-  const HabitForm({super.key, required this.onSave, required this.onCancel});
+  const HabitForm({
+    super.key,
+    required this.onSave,
+    required this.onCancel,
+    required this.userId,
+  });
 
   @override
   State<HabitForm> createState() => _HabitFormState();
@@ -73,6 +79,7 @@ class _HabitFormState extends State<HabitForm> {
         name: _nameController.text,
         frequency: _selectedFrequency,
         startDate: _selectedStartDate,
+        userId: widget.userId,
         isCompleted: false,
       );
       widget.onSave(newHabit);

@@ -12,6 +12,7 @@ class HabitProvider extends ChangeNotifier {
   List<Habit> get habits => _habits;
   bool get isLoading => _isLoading;
   String? get error => _error;
+  String? get userId => _userId;
 
   // Collection reference
   CollectionReference get _habitsCollection => _firestore.collection('habits');

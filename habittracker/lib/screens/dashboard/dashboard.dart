@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 import '../dashboard/widgets/habit_list.dart';
 import '../dashboard/widgets/progress_summary.dart';
 import '../dashboard/widgets/habit_form.dart';
 import '../../models/habit.dart';
 import '../../core/constants/app_colors.dart';
+import '../../providers/habit_provider.dart';
 
 class DashboardScreen extends StatefulWidget {
   @override
@@ -27,14 +29,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
         FirebaseAuth.instance.currentUser?.email?.split('@')[0] ??
         'User';
 
-    // Initialize habits with dummy data
-    habits = [
-      Habit(id: '1', name: 'Morning Exercise', frequency: 'Daily'),
-      Habit(id: '2', name: 'Read 30 minutes', frequency: 'Daily'),
-      Habit(id: '3', name: 'Drink 8 glasses of water', frequency: 'Daily'),
-      Habit(id: '4', name: 'Meditate 10 minutes', frequency: 'Daily'),
-      Habit(id: '5', name: 'Practice coding', frequency: 'Daily'),
-    ];
+    // Initialize habits from provider
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final habitProvider = Provider.of<HabitProvider>(
+          context,
+          listen: false,
+        );
+        habitProvider.setUserId(user.uid);
+      });
+    }
 
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
       setState(() {
@@ -140,7 +145,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 ),
                 SizedBox(height: 8),
-                ProgressSummary(habits: habits),
+                Consumer<HabitProvider>(
+                  builder: (context, habitProvider, child) {
+                    return ProgressSummary(habits: habitProvider.habits);
+                  },
+                ),
                 SizedBox(height: 20),
 
                 // Habit List
@@ -177,14 +186,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
             builder: (context) => AlertDialog(
               title: Text('Add New Habit'),
               content: SingleChildScrollView(
-                child: HabitForm(
-                  onSave: (newHabit) {
-                    setState(() {
-                      habits.add(newHabit);
-                    });
-                    Navigator.pop(context);
+                child: Consumer<HabitProvider>(
+                  builder: (context, habitProvider, child) {
+                    return HabitForm(
+                      onSave: (newHabit) async {
+                        await habitProvider.addHabit(
+                          newHabit.name,
+                          newHabit.frequency,
+                          startDate: newHabit.startDate,
+                        );
+                        Navigator.pop(context);
+                      },
+                      onCancel: () => Navigator.pop(context),
+                      userId: habitProvider.userId ?? '',
+                    );
                   },
-                  onCancel: () => Navigator.pop(context),
                 ),
               ),
             ),
