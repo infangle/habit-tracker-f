@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../providers/auth_provider.dart';
-import '../dashboard/home.dart';
+import '../dashboard/dashboard.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -28,11 +28,12 @@ class _LoginScreenState extends State<LoginScreen> {
     if (provider.errorMessage == null) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
+        MaterialPageRoute(builder: (_) => DashboardScreen()),
       );
     }
   }
 
+  @override
   Widget build(BuildContext context) {
     final provider = Provider.of<AuthProvider>(context, listen: false);
 
@@ -63,18 +64,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       fontWeight: FontWeight.w900,
                     ),
                   ),
-                  SizedBox(height: 20),
 
-                  Text(
-                    'OR LOGIN WITH EMAIL',
-                    style: TextStyle(
-                      color: AppColors.button_text,
-                      fontFamily: 'poppins',
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
-                  ),
-                  SizedBox(height: 20),
+                  SizedBox(height: 40),
                   Form(
                     child: Column(
                       children: [

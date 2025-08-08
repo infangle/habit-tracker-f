@@ -7,7 +7,7 @@ import 'screens/onboarding/onboarding.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/signup_screen.dart';
 import 'providers/auth_provider.dart';
-import 'screens/dashboard/home.dart';
+import 'screens/dashboard/dashboard.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -44,7 +44,7 @@ class MyApp extends StatelessWidget {
             return SignupScreen(key: Key('signup_screen'));
           },
         ),
-        '/home': (context) => const HomeScreen(),
+        '/home': (context) => DashboardScreen(),
       },
     );
   }

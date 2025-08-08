@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../core/constants/app_colors.dart';
-import '../dashboard/home.dart';
+import '../dashboard/dashboard.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -42,7 +42,7 @@ class _SignupScreenState extends State<SignupScreen> {
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
+        MaterialPageRoute(builder: (_) => DashboardScreen()),
       );
     } catch (e) {
       // Handle any exceptions that might be thrown by the signUp method
@@ -68,9 +68,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900),
               ),
 
-              const SizedBox(height: 20),
-              const Text('OR SIGNUP WITH EMAIL'),
-              const SizedBox(height: 20),
+              const SizedBox(height: 40),
 
               Form(
                 key: _formKey,
