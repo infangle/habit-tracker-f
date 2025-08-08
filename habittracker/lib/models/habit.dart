@@ -4,6 +4,7 @@ class Habit {
   final String frequency;
   final DateTime? startDate;
   bool isCompleted;
+  DateTime? completedDate;
 
   Habit({
     required this.id,
@@ -11,5 +12,6 @@ class Habit {
     required this.frequency,
     this.startDate,
     this.isCompleted = false,
+    this.completedDate,
   });
 }

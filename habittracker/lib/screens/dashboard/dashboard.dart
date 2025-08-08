@@ -140,7 +140,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 ),
                 SizedBox(height: 8),
-                ProgressSummary(),
+                ProgressSummary(habits: habits),
                 SizedBox(height: 20),
 
                 // Habit List
