@@ -25,7 +25,17 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _handleLogin(BuildContext context) async {
     final provider = Provider.of<AuthProvider>(context, listen: false);
 
-    if (provider.errorMessage == null) {
+    await provider.login(_emailController.text, _passwordController.text);
+
+    if (provider.errorMessage == null && provider.currentUser != null) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Welcome back, ${provider.currentUser!.username}!'),
+        ),
+      );
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => DashboardScreen()),

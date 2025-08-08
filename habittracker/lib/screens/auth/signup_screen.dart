@@ -33,7 +33,11 @@ class _SignupScreenState extends State<SignupScreen> {
     if (provider.isLoading) return;
 
     try {
-      await provider.signUp(_emailController.text, _passwordController.text);
+      await provider.signUp(
+        _emailController.text,
+        _passwordController.text,
+        _usernameController.text,
+      );
 
       if (!mounted) return;
       ScaffoldMessenger.of(
