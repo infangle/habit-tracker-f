@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../models/habit.dart';
+import '../../../domain/entities/habit.dart';
 import '../../../core/constants/app_colors.dart';
 
 class ProgressSummary extends StatelessWidget {
@@ -49,7 +49,7 @@ class ProgressSummary extends StatelessWidget {
             SizedBox(height: 16),
 
             // Heatmap Calendar
-            Container(
+            SizedBox(
               height: 200,
               child: GridView.builder(
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(

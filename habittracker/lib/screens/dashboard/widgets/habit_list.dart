@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../models/habit.dart';
+import '../../../domain/entities/habit.dart';
 import 'habit_card.dart';
 
 class HabitList extends StatelessWidget {

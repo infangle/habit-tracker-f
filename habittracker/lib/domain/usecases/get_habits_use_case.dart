@@ -6,7 +6,7 @@ class GetHabitsUseCase {
 
   GetHabitsUseCase(this.repository);
 
-  Future<List<Habit>> execute(String userId) async {
-    return await repository.getHabits(userId);
+  Stream<List<Habit>> execute(String userId) {
+    return repository.getHabits(userId);
   }
 }

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 // Data layer
 import 'data/repositories/habit_repository_impl.dart';
+import 'data/services/firebase_firestore_service.dart';
 
 // Domain layer
 import 'domain/usecases/add_habit_use_case.dart';
@@ -17,12 +17,13 @@ import 'providers/habit_provider.dart';
 import 'providers/auth_provider.dart';
 
 // Screens
-import 'screens/dashboard/dashboard.dart';
 import 'screens/auth/login_screen.dart';
+import 'firebase_options.dart';
 
+// Main entry point of the application
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MyApp());
 }
 
@@ -32,7 +33,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Dependency Injection Setup
-    final habitRepository = HabitRepositoryImpl(FirebaseFirestore.instance);
+    final firebaseFirestoreService = FirebaseFirestoreService();
+    final habitRepository = HabitRepositoryImpl(firebaseFirestoreService);
 
     final getHabitsUseCase = GetHabitsUseCase(habitRepository);
     final addHabitUseCase = AddHabitUseCase(habitRepository);

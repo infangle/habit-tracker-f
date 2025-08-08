@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import '../domain/entities/habit.dart';
 import '../domain/usecases/add_habit_use_case.dart';
@@ -15,6 +16,7 @@ class HabitProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _error;
   String? _userId;
+  StreamSubscription<List<Habit>>? _habitsSubscription;
 
   HabitProvider({
     required AddHabitUseCase addHabitUseCase,
@@ -33,36 +35,41 @@ class HabitProvider extends ChangeNotifier {
 
   void setUserId(String userId) {
     _userId = userId;
-    loadHabits();
+    _startListeningToHabits();
   }
 
-  Future<void> loadHabits() async {
+  void _startListeningToHabits() {
     if (_userId == null) return;
 
+    _habitsSubscription?.cancel();
     _setLoading(true);
-    try {
-      _habits = await _getHabitsUseCase.execute(_userId!);
-      _error = null;
-    } catch (e) {
-      _error = 'Failed to load habits: ${e.toString()}';
-    } finally {
-      _setLoading(false);
-    }
+
+    _habitsSubscription = _getHabitsUseCase
+        .execute(_userId!)
+        .listen(
+          (habits) {
+            _habits = habits;
+            _error = null;
+            _setLoading(false);
+            notifyListeners();
+          },
+          onError: (error) {
+            _error = 'Failed to load habits: ${error.toString()}';
+            _setLoading(false);
+            notifyListeners();
+          },
+        );
   }
 
   Future<void> addHabit(Habit habit) async {
     if (_userId == null) return;
 
-    _setLoading(true);
     try {
       await _addHabitUseCase.execute(habit);
-      _habits.insert(0, habit);
       _error = null;
-      notifyListeners();
     } catch (e) {
       _error = 'Failed to add habit: ${e.toString()}';
-    } finally {
-      _setLoading(false);
+      notifyListeners();
     }
   }
 
@@ -74,12 +81,7 @@ class HabitProvider extends ChangeNotifier {
       );
 
       await _updateHabitUseCase.execute(updatedHabit);
-
-      final index = _habits.indexWhere((h) => h.id == habit.id);
-      if (index != -1) {
-        _habits[index] = updatedHabit;
-        notifyListeners();
-      }
+      _error = null;
     } catch (e) {
       _error = 'Failed to update habit: ${e.toString()}';
       notifyListeners();
@@ -89,8 +91,7 @@ class HabitProvider extends ChangeNotifier {
   Future<void> deleteHabit(Habit habit) async {
     try {
       await _deleteHabitUseCase.execute(habit.id);
-      _habits.removeWhere((h) => h.id == habit.id);
-      notifyListeners();
+      _error = null;
     } catch (e) {
       _error = 'Failed to delete habit: ${e.toString()}';
       notifyListeners();
@@ -102,15 +103,17 @@ class HabitProvider extends ChangeNotifier {
 
     try {
       await _updateHabitUseCase.execute(habit);
-      final index = _habits.indexWhere((h) => h.id == habit.id);
-      if (index != -1) {
-        _habits[index] = habit;
-        notifyListeners();
-      }
+      _error = null;
     } catch (e) {
       _error = 'Failed to update habit: ${e.toString()}';
       notifyListeners();
     }
+  }
+
+  @override
+  void dispose() {
+    _habitsSubscription?.cancel();
+    super.dispose();
   }
 
   void clearError() {

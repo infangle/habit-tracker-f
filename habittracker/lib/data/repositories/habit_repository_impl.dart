@@ -1,42 +1,30 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../domain/entities/habit.dart';
 import '../../domain/repositories/habit_repository.dart';
+import '../services/firebase_firestore_service.dart';
 
 class HabitRepositoryImpl implements HabitRepository {
-  final FirebaseFirestore _firestore;
+  final FirebaseFirestoreService _firebaseFirestoreService;
 
-  HabitRepositoryImpl(this._firestore);
+  HabitRepositoryImpl(this._firebaseFirestoreService);
 
   @override
   Future<void> addHabit(Habit habit) async {
-    await _firestore.collection('habits').add(habit.toFirestore());
+    await _firebaseFirestoreService.addHabit(habit);
   }
 
   @override
-  Future<List<Habit>> getHabits(String userId) async {
-    final snapshot = await _firestore
-        .collection('habits')
-        .where('userId', isEqualTo: userId)
-        .orderBy('createdAt', descending: true)
-        .get();
-
-    return snapshot.docs.map((doc) {
-      final data = doc.data();
-      return Habit.fromFirestore(doc.id, data);
-    }).toList();
+  Stream<List<Habit>> getHabits(String userId) {
+    return _firebaseFirestoreService.getHabitsByUser(userId);
   }
 
   @override
   Future<void> updateHabit(Habit habit) async {
-    await _firestore
-        .collection('habits')
-        .doc(habit.id)
-        .update(habit.toFirestore());
+    await _firebaseFirestoreService.updateHabit(habit);
   }
 
   @override
   Future<void> deleteHabit(String id) async {
-    await _firestore.collection('habits').doc(id).delete();
+    await _firebaseFirestoreService.deleteHabit(id);
   }
 
   @override
@@ -45,9 +33,11 @@ class HabitRepositoryImpl implements HabitRepository {
       isCompleted: !habit.isCompleted,
       completedDate: !habit.isCompleted ? DateTime.now() : null,
     );
-    await _firestore
-        .collection('habits')
-        .doc(habit.id)
-        .update(updatedHabit.toFirestore());
+    await _firebaseFirestoreService.updateHabit(updatedHabit);
+  }
+
+  @override
+  Future<Habit?> getHabitById(String id) async {
+    return await _firebaseFirestoreService.getHabitById(id);
   }
 }
