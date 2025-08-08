@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../core/constants/app_colors.dart';
-import '../../providers/auth_provider.dart';
-import '../dashboard/dashboard.dart';
+import 'package:habittracker/core/constants/app_colors.dart';
+import 'package:habittracker/providers/auth_provider.dart';
+import 'package:habittracker/screens/dashboard/dashboard.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -32,7 +32,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Welcome back, ${provider.currentUser!.username}!'),
+          content: Text('Welcome back, ${provider.currentUser!.displayName}!'),
         ),
       );
 

@@ -1,60 +1,31 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class UserProfile {
   final String id;
   final String email;
-  final String username;
-  final DateTime createdAt;
-  final DateTime? lastLoginAt;
+  final String displayName;
+  final String createdAt;
 
   UserProfile({
     required this.id,
     required this.email,
-    required this.username,
+    required this.displayName,
     required this.createdAt,
-    this.lastLoginAt,
   });
 
-  // Convert UserProfile to Firestore map
-  Map<String, dynamic> toFirestore() {
+  factory UserProfile.fromMap(Map<String, dynamic> map) {
+    return UserProfile(
+      id: map['id'] as String,
+      email: map['email'] as String,
+      displayName: map['displayName'] as String,
+      createdAt: map['createdAt'] as String,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
     return {
       'id': id,
       'email': email,
-      'username': username,
-      'createdAt': Timestamp.fromDate(createdAt),
-      'lastLoginAt': lastLoginAt != null
-          ? Timestamp.fromDate(lastLoginAt!)
-          : null,
+      'displayName': displayName,
+      'createdAt': createdAt,
     };
-  }
-
-  // Create UserProfile from Firestore document
-  factory UserProfile.fromFirestore(String id, Map<String, dynamic> data) {
-    return UserProfile(
-      id: data['id'] ?? '',
-      email: data['email'] ?? '',
-      username: data['username'] ?? '',
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
-      lastLoginAt: data['lastLoginAt'] != null
-          ? (data['lastLoginAt'] as Timestamp).toDate()
-          : null,
-    );
-  }
-
-  // Copy with method for updating fields
-  UserProfile copyWith({
-    String? id,
-    String? email,
-    String? username,
-    DateTime? createdAt,
-    DateTime? lastLoginAt,
-  }) {
-    return UserProfile(
-      id: id ?? this.id,
-      email: email ?? this.email,
-      username: username ?? this.username,
-      createdAt: createdAt ?? this.createdAt,
-      lastLoginAt: lastLoginAt ?? this.lastLoginAt,
-    );
   }
 }

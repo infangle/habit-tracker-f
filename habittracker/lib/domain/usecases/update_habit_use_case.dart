@@ -2,11 +2,11 @@ import '../entities/habit.dart';
 import '../repositories/habit_repository.dart';
 
 class UpdateHabitUseCase {
-  final HabitRepository repository;
+  final HabitRepository _habitRepository;
 
-  UpdateHabitUseCase(this.repository);
+  UpdateHabitUseCase(this._habitRepository);
 
-  Future<void> execute(Habit habit) async {
-    await repository.updateHabit(habit);
+  Future<void> execute(String userId, Habit habit) async {
+    await _habitRepository.updateHabit(userId, habit);
   }
 }

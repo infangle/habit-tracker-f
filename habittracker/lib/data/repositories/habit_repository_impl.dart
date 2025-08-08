@@ -1,43 +1,56 @@
-import '../../domain/entities/habit.dart';
-import '../../domain/repositories/habit_repository.dart';
-import '../services/firebase_firestore_service.dart';
+import 'package:habittracker/data/services/firebase_firestore_service.dart';
+import 'package:habittracker/domain/entities/habit.dart';
+import 'package:habittracker/domain/repositories/habit_repository.dart';
 
 class HabitRepositoryImpl implements HabitRepository {
-  final FirebaseFirestoreService _firebaseFirestoreService;
+  final FirebaseFirestoreService _firestoreService;
 
-  HabitRepositoryImpl(this._firebaseFirestoreService);
+  HabitRepositoryImpl({required FirebaseFirestoreService firestoreService})
+    : _firestoreService = firestoreService;
 
   @override
-  Future<void> addHabit(Habit habit) async {
-    await _firebaseFirestoreService.addHabit(habit);
+  Future<void> addHabit(String userId, Habit habit) async {
+    await _firestoreService.addHabit(userId, habit);
   }
 
   @override
   Stream<List<Habit>> getHabits(String userId) {
-    return _firebaseFirestoreService.getHabitsByUser(userId);
+    return _firestoreService.getHabits(userId);
   }
 
   @override
-  Future<void> updateHabit(Habit habit) async {
-    await _firebaseFirestoreService.updateHabit(habit);
+  Future<void> updateHabit(String userId, Habit habit) async {
+    await _firestoreService.updateHabit(userId, habit);
   }
 
   @override
-  Future<void> deleteHabit(String id) async {
-    await _firebaseFirestoreService.deleteHabit(id);
+  Future<void> deleteHabit(String userId, String habitId) async {
+    await _firestoreService.deleteHabit(userId, habitId);
   }
 
   @override
-  Future<void> toggleHabitCompletion(Habit habit) async {
-    final updatedHabit = habit.copyWith(
-      isCompleted: !habit.isCompleted,
-      completedDate: !habit.isCompleted ? DateTime.now() : null,
+  Future<Habit?> getHabitById(String userId, String habitId) async {
+    return await _firestoreService.getHabitById(userId, habitId);
+  }
+
+  @override
+  Stream<List<Habit>> getHabitsByCompletion(String userId, bool isCompleted) {
+    return _firestoreService.getHabitsByCompletion(userId, isCompleted);
+  }
+
+  @override
+  Stream<List<Habit>> getHabitsByFrequency(String userId, String frequency) {
+    return _firestoreService.getHabitsByFrequency(userId, frequency);
+  }
+
+  @override
+  Stream<List<Habit>> getHabitsOrderedByDate(
+    String userId, {
+    bool descending = true,
+  }) {
+    return _firestoreService.getHabitsOrderedByDate(
+      userId,
+      descending: descending,
     );
-    await _firebaseFirestoreService.updateHabit(updatedHabit);
-  }
-
-  @override
-  Future<Habit?> getHabitById(String id) async {
-    return await _firebaseFirestoreService.getHabitById(id);
   }
 }

@@ -1,26 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
-
+import 'package:habittracker/core/constants/app_colors.dart';
+import 'package:habittracker/core/entities/user.dart';
+import 'package:habittracker/providers/auth_provider.dart';
+import 'package:habittracker/providers/habit_provider.dart';
 import 'widgets/habit_list.dart';
 import 'widgets/progress_summary.dart';
 import 'widgets/habit_form.dart';
-import '../../core/constants/app_colors.dart';
-import '../../providers/habit_provider.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Get the current user and their display name
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
+    final authProvider = Provider.of<AuthProvider>(context);
+    final username = authProvider.currentUser?.displayName ?? 'User';
+
+    if (authProvider.currentUser == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        Provider.of<HabitProvider>(context, listen: false).setUserId(user.uid);
+        Navigator.pushReplacementNamed(context, '/login');
       });
+      return const Center(child: CircularProgressIndicator());
     }
-    final username = user?.displayName ?? 'User';
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.onboarding_background,
@@ -35,7 +37,7 @@ class DashboardScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.white),
             onPressed: () async {
-              await FirebaseAuth.instance.signOut();
+              await authProvider.signOut();
               Navigator.pushReplacementNamed(context, '/login');
             },
           ),
@@ -48,7 +50,6 @@ class DashboardScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Welcome message and current date/time
                 Card(
                   color: AppColors.facebook_button,
                   child: Padding(
@@ -102,8 +103,6 @@ class DashboardScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 20),
-
-                // Progress Summary
                 const Text(
                   'Progress Summary',
                   style: TextStyle(
@@ -119,8 +118,6 @@ class DashboardScreen extends StatelessWidget {
                   },
                 ),
                 const SizedBox(height: 20),
-
-                // Habit List
                 const Text(
                   'Your Habits',
                   style: TextStyle(
@@ -135,7 +132,6 @@ class DashboardScreen extends StatelessWidget {
                     if (habitProvider.isLoading) {
                       return const Center(child: CircularProgressIndicator());
                     }
-
                     if (habitProvider.error != null) {
                       return Center(
                         child: Text(
@@ -144,7 +140,6 @@ class DashboardScreen extends StatelessWidget {
                         ),
                       );
                     }
-
                     if (habitProvider.habits.isEmpty) {
                       return const Center(
                         child: Text(
@@ -153,7 +148,6 @@ class DashboardScreen extends StatelessWidget {
                         ),
                       );
                     }
-
                     return HabitList(
                       habits: habitProvider.habits,
                       onToggle: (index, value) async {
@@ -171,6 +165,12 @@ class DashboardScreen extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         backgroundColor: AppColors.onboarding_background,
         onPressed: () {
+          if (authProvider.currentUser == null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Please log in to add a habit')),
+            );
+            return;
+          }
           showDialog(
             context: context,
             builder: (context) => AlertDialog(
@@ -178,14 +178,14 @@ class DashboardScreen extends StatelessWidget {
               content: SingleChildScrollView(
                 child: HabitForm(
                   onSave: (newHabit) async {
-                    Provider.of<HabitProvider>(
+                    await Provider.of<HabitProvider>(
                       context,
                       listen: false,
                     ).addHabit(newHabit);
                     Navigator.pop(context);
                   },
                   onCancel: () => Navigator.pop(context),
-                  userId: user?.uid ?? '',
+                  userId: authProvider.currentUser!.id,
                 ),
               ),
             ),

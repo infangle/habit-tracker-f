@@ -1,81 +1,53 @@
-// firebase_auth_repository.dart
-
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'auth_repository.dart';
-import '../../domain/entities/user.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../../core/entities/user.dart'; // In firebase_auth_repository.dart
+import '../../core/repositories/auth_repository.dart';
 
 class FirebaseAuthRepository implements AuthRepository {
-  final FirebaseAuth _firebaseAuth;
-  final FirebaseFirestore _firestore;
-
-  FirebaseAuthRepository({
-    FirebaseAuth? firebaseAuth,
-    FirebaseFirestore? firestore,
-  }) : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
-       _firestore = firestore ?? FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   @override
   Future<void> signUp(String email, String password, String username) async {
     try {
-      // Create user in Firebase Auth
-      final userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
+      final userCredential = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
-
       final user = userCredential.user;
       if (user != null) {
-        // Store user profile in Firestore
-        final userProfile = UserProfile(
-          id: user.uid,
-          email: email,
-          username: username,
-          createdAt: DateTime.now(),
-        );
-
-        await _firestore
-            .collection('users')
-            .doc(user.uid)
-            .set(userProfile.toFirestore());
+        await user.updateDisplayName(username);
+        await _firestore.collection('users').doc(user.uid).set({
+          'id': user.uid,
+          'email': email,
+          'displayName': username,
+          'createdAt': DateTime.now().toIso8601String(),
+        });
       }
-    } on FirebaseAuthException catch (e) {
-      throw Exception(e.message);
+    } catch (e) {
+      throw Exception('Failed to sign up: $e');
     }
   }
 
   @override
   Future<void> login(String email, String password) async {
     try {
-      await _firebaseAuth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-
-      // Update last login time
-      final user = _firebaseAuth.currentUser;
-      if (user != null) {
-        await _firestore.collection('users').doc(user.uid).update({
-          'lastLoginAt': Timestamp.fromDate(DateTime.now()),
-        });
-      }
-    } on FirebaseAuthException catch (e) {
-      throw Exception(e.message);
+      await _auth.signInWithEmailAndPassword(email: email, password: password);
+    } catch (e) {
+      throw Exception('Failed to login: $e');
     }
   }
 
   @override
   Future<UserProfile?> getCurrentUser() async {
     try {
-      final user = _firebaseAuth.currentUser;
-      if (user != null) {
-        final doc = await _firestore.collection('users').doc(user.uid).get();
-        if (doc.exists) {
-          final data = doc.data() as Map<String, dynamic>;
-          return UserProfile.fromFirestore(user.uid, data);
-        }
-      }
-      return null;
+      final user = _auth.currentUser;
+      if (user == null) return null;
+
+      final doc = await _firestore.collection('users').doc(user.uid).get();
+      if (!doc.exists) return null;
+
+      return UserProfile.fromMap(doc.data()!);
     } catch (e) {
       throw Exception('Failed to get current user: $e');
     }
@@ -84,12 +56,22 @@ class FirebaseAuthRepository implements AuthRepository {
   @override
   Future<void> updateUserProfile(UserProfile user) async {
     try {
-      await _firestore
-          .collection('users')
-          .doc(user.id)
-          .update(user.toFirestore());
+      final firebaseUser = _auth.currentUser;
+      if (firebaseUser != null) {
+        await firebaseUser.updateDisplayName(user.displayName);
+        await _firestore.collection('users').doc(user.id).set(user.toMap());
+      }
     } catch (e) {
       throw Exception('Failed to update user profile: $e');
+    }
+  }
+
+  @override
+  Future<void> signOut() async {
+    try {
+      await _auth.signOut();
+    } catch (e) {
+      throw Exception('Failed to sign out: $e');
     }
   }
 }

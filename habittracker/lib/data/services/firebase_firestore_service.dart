@@ -1,114 +1,101 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:habittracker/domain/entities/habit.dart';
+import '../../domain/entities/habit.dart';
 
 class FirebaseFirestoreService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // Collection reference for habits
-  CollectionReference get _habitsCollection => _firestore.collection('habits');
-
-  /// Adds a new habit to Firestore
-  Future<void> addHabit(Habit habit) async {
-    try {
-      await _habitsCollection.add(habit.toFirestore());
-    } catch (e) {
-      throw Exception('Failed to add habit: $e');
-    }
+  Future<void> addHabit(String userId, Habit habit) async {
+    await _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('habits')
+        .doc(habit.id)
+        .set(habit.toFirestore());
   }
 
-  /// Gets a stream of all habits from Firestore
-  Stream<List<Habit>> getHabits() {
-    return _habitsCollection.snapshots().map((snapshot) {
-      return snapshot.docs.map((doc) {
-        final data = doc.data() as Map<String, dynamic>;
-        return Habit.fromFirestore(doc.id, data);
-      }).toList();
-    });
+  Stream<List<Habit>> getHabits(String userId) {
+    return _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('habits')
+        .snapshots()
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => Habit.fromFirestore(doc.id, doc.data()))
+              .toList(),
+        );
   }
 
-  /// Gets a stream of habits filtered by user ID
-  Stream<List<Habit>> getHabitsByUser(String userId) {
-    return _habitsCollection.where('userId', isEqualTo: userId).snapshots().map(
-      (snapshot) {
-        return snapshot.docs.map((doc) {
-          final data = doc.data() as Map<String, dynamic>;
-          return Habit.fromFirestore(doc.id, data);
-        }).toList();
-      },
-    );
+  Future<void> updateHabit(String userId, Habit habit) async {
+    await _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('habits')
+        .doc(habit.id)
+        .update(habit.toFirestore());
   }
 
-  /// Updates an existing habit in Firestore
-  Future<void> updateHabit(Habit habit) async {
-    try {
-      if (habit.id.isEmpty) {
-        throw Exception('Habit ID is required for update');
-      }
-      await _habitsCollection.doc(habit.id).update(habit.toFirestore());
-    } catch (e) {
-      throw Exception('Failed to update habit: $e');
-    }
+  Future<void> deleteHabit(String userId, String habitId) async {
+    await _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('habits')
+        .doc(habitId)
+        .delete();
   }
 
-  /// Deletes a habit from Firestore
-  Future<void> deleteHabit(String id) async {
-    try {
-      await _habitsCollection.doc(id).delete();
-    } catch (e) {
-      throw Exception('Failed to delete habit: $e');
-    }
+  Future<Habit?> getHabitById(String userId, String habitId) async {
+    final doc = await _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('habits')
+        .doc(habitId)
+        .get();
+    return doc.exists ? Habit.fromFirestore(doc.id, doc.data()!) : null;
   }
 
-  /// Gets a single habit by ID
-  Future<Habit?> getHabitById(String id) async {
-    try {
-      final doc = await _habitsCollection.doc(id).get();
-      if (doc.exists) {
-        final data = doc.data() as Map<String, dynamic>;
-        return Habit.fromFirestore(doc.id, data);
-      }
-      return null;
-    } catch (e) {
-      throw Exception('Failed to get habit: $e');
-    }
-  }
-
-  /// Gets habits filtered by completion status
-  Stream<List<Habit>> getHabitsByCompletion(bool isCompleted) {
-    return _habitsCollection
+  Stream<List<Habit>> getHabitsByCompletion(String userId, bool isCompleted) {
+    return _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('habits')
         .where('isCompleted', isEqualTo: isCompleted)
         .snapshots()
-        .map((snapshot) {
-          return snapshot.docs.map((doc) {
-            final data = doc.data() as Map<String, dynamic>;
-            return Habit.fromFirestore(doc.id, data);
-          }).toList();
-        });
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => Habit.fromFirestore(doc.id, doc.data()))
+              .toList(),
+        );
   }
 
-  /// Gets habits filtered by frequency
-  Stream<List<Habit>> getHabitsByFrequency(String frequency) {
-    return _habitsCollection
+  Stream<List<Habit>> getHabitsByFrequency(String userId, String frequency) {
+    return _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('habits')
         .where('frequency', isEqualTo: frequency)
         .snapshots()
-        .map((snapshot) {
-          return snapshot.docs.map((doc) {
-            final data = doc.data() as Map<String, dynamic>;
-            return Habit.fromFirestore(doc.id, data);
-          }).toList();
-        });
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => Habit.fromFirestore(doc.id, doc.data()))
+              .toList(),
+        );
   }
 
-  /// Gets habits ordered by creation date
-  Stream<List<Habit>> getHabitsOrderedByDate({bool descending = true}) {
-    return _habitsCollection
+  Stream<List<Habit>> getHabitsOrderedByDate(
+    String userId, {
+    bool descending = true,
+  }) {
+    return _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('habits')
         .orderBy('createdAt', descending: descending)
         .snapshots()
-        .map((snapshot) {
-          return snapshot.docs.map((doc) {
-            final data = doc.data() as Map<String, dynamic>;
-            return Habit.fromFirestore(doc.id, data);
-          }).toList();
-        });
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => Habit.fromFirestore(doc.id, doc.data()))
+              .toList(),
+        );
   }
 }

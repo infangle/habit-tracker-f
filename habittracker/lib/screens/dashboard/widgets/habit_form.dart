@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../../domain/entities/habit.dart';
+import 'package:provider/provider.dart';
+import 'package:habittracker/core/constants/app_colors.dart';
+import 'package:habittracker/domain/entities/habit.dart';
+import 'package:habittracker/providers/auth_provider.dart';
+import 'package:habittracker/providers/habit_provider.dart';
+import 'package:uuid/uuid.dart';
 
 class HabitForm extends StatefulWidget {
   final Function(Habit) onSave;
@@ -20,163 +25,106 @@ class HabitForm extends StatefulWidget {
 class _HabitFormState extends State<HabitForm> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
-  final _startDateController = TextEditingController();
-  String _selectedFrequency = 'Daily';
-  DateTime? _selectedStartDate;
-
-  final List<String> _frequencies = ['Daily', 'Weekly', 'Monthly', 'Custom'];
-
-  @override
-  void initState() {
-    super.initState();
-    _selectedStartDate = DateTime.now();
-    _startDateController.text = _formatDate(_selectedStartDate!);
-  }
+  final _frequencyController = TextEditingController();
+  bool _isCompleted = false;
 
   @override
   void dispose() {
     _nameController.dispose();
-    _startDateController.dispose();
+    _frequencyController.dispose();
     super.dispose();
   }
 
-  String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
-  }
-
-  Future<void> _selectStartDate() async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: _selectedStartDate ?? DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
-              primary: Theme.of(context).primaryColor,
-              onPrimary: Colors.white,
-              onSurface: Colors.black,
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
-
-    if (picked != null && picked != _selectedStartDate) {
-      setState(() {
-        _selectedStartDate = picked;
-        _startDateController.text = _formatDate(picked);
-      });
-    }
-  }
-
-  void _handleSave() {
+  void _submitForm() {
     if (_formKey.currentState!.validate()) {
-      final newHabit = Habit(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
+      final habit = Habit(
+        id: const Uuid().v4(),
         name: _nameController.text,
-        frequency: _selectedFrequency,
-        startDate: _selectedStartDate,
+        frequency: _frequencyController.text,
+        startDate: DateTime.now(),
+        isCompleted: _isCompleted,
+        completedDate: _isCompleted ? DateTime.now() : null,
         userId: widget.userId,
-        isCompleted: false,
       );
-      widget.onSave(newHabit);
+      widget.onSave(habit);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-      key: _formKey,
-      child: SingleChildScrollView(
+    final authProvider = Provider.of<AuthProvider>(context);
+
+    if (authProvider.currentUser == null) {
+      return const Center(child: Text('User not logged in'));
+    }
+
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Form(
+        key: _formKey,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Habit Name Field
             TextFormField(
               controller: _nameController,
               decoration: InputDecoration(
                 labelText: 'Habit Name',
-                hintText: 'e.g., Morning Exercise',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.task_alt),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16.0),
+                ),
+                filled: true,
+                fillColor: AppColors.text_field,
               ),
               validator: (value) {
-                if (value == null || value.trim().isEmpty) {
+                if (value == null || value.isEmpty) {
                   return 'Please enter a habit name';
                 }
                 return null;
               },
             ),
-            SizedBox(height: 16),
-
-            // Start Date Field
+            const SizedBox(height: 16),
             TextFormField(
-              controller: _startDateController,
-              readOnly: true,
+              controller: _frequencyController,
               decoration: InputDecoration(
-                labelText: 'Start Date',
-                hintText: 'Select start date',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.calendar_today),
-                suffixIcon: Icon(Icons.arrow_drop_down),
+                labelText: 'Frequency (e.g., daily, weekly)',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16.0),
+                ),
+                filled: true,
+                fillColor: AppColors.text_field,
               ),
-              onTap: _selectStartDate,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter a frequency';
+                }
+                return null;
+              },
             ),
-            SizedBox(height: 16),
-
-            // Frequency Selection
-            Text(
-              'Frequency',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            const SizedBox(height: 16),
+            CheckboxListTile(
+              title: const Text('Completed'),
+              value: _isCompleted,
+              onChanged: (value) {
+                setState(() {
+                  _isCompleted = value ?? false;
+                });
+              },
             ),
-            SizedBox(height: 8),
-
-            // Radio buttons for frequency
-            Column(
-              children: _frequencies.map((frequency) {
-                return RadioListTile<String>(
-                  title: Text(frequency),
-                  value: frequency,
-                  groupValue: _selectedFrequency,
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedFrequency = value!;
-                    });
-                  },
-                  contentPadding: EdgeInsets.zero,
-                  dense: true,
-                );
-              }).toList(),
-            ),
-            SizedBox(height: 24),
-
-            // Action Buttons
+            const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                // Cancel Button
                 ElevatedButton(
-                  onPressed: widget.onCancel,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey,
-                    foregroundColor: Colors.white,
-                    minimumSize: Size(120, 40),
+                    backgroundColor: AppColors.login_button,
+                    foregroundColor: AppColors.primary_white,
                   ),
-                  child: Text('Cancel'),
+                  onPressed: _submitForm,
+                  child: const Text('Save'),
                 ),
-
-                // Save Button
-                ElevatedButton(
-                  onPressed: _handleSave,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).primaryColor,
-                    foregroundColor: Colors.white,
-                    minimumSize: Size(120, 40),
-                  ),
-                  child: Text('Save'),
+                TextButton(
+                  onPressed: widget.onCancel,
+                  child: const Text('Cancel'),
                 ),
               ],
             ),
