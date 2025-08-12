@@ -1,12 +1,13 @@
+// lib/presentation/widgets/habit_dialog.dart
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:habit_tracker/controllers/HabitController.dart';
+import 'package:habit_tracker/controllers/AuthController.dart';
 import 'package:habit_tracker/domain/models/habit.dart';
 
 class HabitDialog extends StatefulWidget {
   final Habit? habit;
-
   const HabitDialog({super.key, this.habit});
 
   @override
@@ -14,31 +15,73 @@ class HabitDialog extends StatefulWidget {
 }
 
 class _HabitDialogState extends State<HabitDialog> {
-  final TextEditingController _nameController = TextEditingController();
-  final RxString _frequency = 'Daily'.obs;
-  final Rx<DateTime?> _startDate = Rx<DateTime?>(null);
-  final HabitController _habitController = Get.find();
+  final HabitController habitController = Get.find();
+  final AuthController authController = Get.find();
+  final TextEditingController nameController = TextEditingController();
+  final RxString frequency = 'Daily'.obs;
+  final Rx<DateTime> startDate = DateTime.now().obs;
 
   @override
   void initState() {
     super.initState();
     if (widget.habit != null) {
-      _nameController.text = widget.habit!.name;
-      _frequency.value = widget.habit!.frequency;
-      _startDate.value = widget.habit!.startDate;
+      // If we are editing, pre-fill the form with existing habit data.
+      nameController.text = widget.habit!.name;
+      frequency.value = widget.habit!.frequency;
+      startDate.value = widget.habit!.startDate;
     }
   }
 
-  Future<void> _selectStartDate(BuildContext context) async {
+  @override
+  void dispose() {
+    nameController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _pickStartDate() async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: _startDate.value ?? DateTime.now(),
+      initialDate: startDate.value,
       firstDate: DateTime(2000),
-      lastDate: DateTime(2025),
+      lastDate: DateTime(2101),
     );
-    if (picked != null) {
-      _startDate.value = picked;
+    if (picked != null && picked != startDate.value) {
+      startDate.value = picked;
     }
+  }
+
+  void _saveHabit() {
+    if (nameController.text.isEmpty) {
+      Get.snackbar('Error', 'Please enter a habit name.');
+      return;
+    }
+
+    // Ensure the user is logged in before creating a habit.
+    final currentUser = authController.user.value;
+    if (currentUser == null) {
+      Get.snackbar('Error', 'You must be logged in to save a habit.');
+      return;
+    }
+
+    if (widget.habit == null) {
+      // Adding a new habit
+      final newHabit = Habit(
+        userId: currentUser.uid,
+        name: nameController.text,
+        frequency: frequency.value,
+        startDate: startDate.value,
+      );
+      habitController.addHabit(newHabit);
+    } else {
+      // Updating an existing habit
+      final updatedHabit = widget.habit!.copyWith(
+        name: nameController.text,
+        frequency: frequency.value,
+        startDate: startDate.value,
+      );
+      habitController.updateHabit(updatedHabit);
+    }
+    Get.back();
   }
 
   @override
@@ -50,80 +93,47 @@ class _HabitDialogState extends State<HabitDialog> {
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
-              controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: 'Habit Name',
-                border: OutlineInputBorder(),
-              ),
+              controller: nameController,
+              decoration: const InputDecoration(labelText: 'Habit Name'),
             ),
             const SizedBox(height: 16),
             Obx(
               () => DropdownButtonFormField<String>(
-                value: _frequency.value,
-                decoration: const InputDecoration(
-                  labelText: 'Frequency',
-                  border: OutlineInputBorder(),
-                ),
-                items: ['Daily', 'Weekly'].map((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-                onChanged: (value) => _frequency.value = value!,
+                value: frequency.value,
+                decoration: const InputDecoration(labelText: 'Frequency'),
+                items: ['Daily', 'Weekly', 'Monthly']
+                    .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                    .toList(),
+                onChanged: (value) {
+                  if (value != null) {
+                    frequency.value = value;
+                  }
+                },
               ),
             ),
             const SizedBox(height: 16),
-            Obx(
-              () => ListTile(
-                title: Text(
-                  _startDate.value == null
-                      ? 'Select Start Date'
-                      : 'Start Date: ${DateFormat('yyyy-MM-dd').format(_startDate.value!)}',
+            Row(
+              children: [
+                Expanded(
+                  child: Obx(
+                    () => Text(
+                      'Start Date: ${startDate.value.toLocal().toString().split(' ')[0]}',
+                    ),
+                  ),
                 ),
-                trailing: const Icon(Icons.calendar_today),
-                onTap: () => _selectStartDate(context),
-              ),
+                TextButton(
+                  onPressed: _pickStartDate,
+                  child: const Text('Pick Date'),
+                ),
+              ],
             ),
           ],
         ),
       ),
       actions: [
-        ElevatedButton(
-          onPressed: () {
-            if (_nameController.text.isNotEmpty) {
-              if (widget.habit == null) {
-                _habitController.addHabit(
-                  name: _nameController.text,
-                  frequency: _frequency.value,
-                  startDate: _startDate.value,
-                );
-              } else {
-                _habitController.editHabit(
-                  id: widget.habit!.id,
-                  name: _nameController.text,
-                  frequency: _frequency.value,
-                  startDate: _startDate.value,
-                );
-              }
-              Get.back();
-            } else {
-              Get.snackbar('Error', 'Habit name cannot be empty');
-            }
-          },
-          child: Text(widget.habit == null ? 'Add' : 'Save'),
-        ),
-        ElevatedButton(
-          onPressed: () => Get.back(),
-          child: const Text('Cancel'),
-        ),
+        TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
+        ElevatedButton(onPressed: _saveHabit, child: const Text('Save')),
       ],
     );
-  }
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    super.dispose();
   }
 }

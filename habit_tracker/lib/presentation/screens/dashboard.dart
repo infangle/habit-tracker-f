@@ -1,9 +1,11 @@
+// lib/presentation/screens/dashboard.dart
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:habit_tracker/controllers/AuthController.dart';
 import 'package:habit_tracker/controllers/HabitController.dart';
-import 'package:habit_tracker/domain/models/habit.dart';
 import 'package:habit_tracker/presentation/screens/progress.dart';
 import 'package:habit_tracker/presentation/widgets/habit_dialog.dart';
 
@@ -32,6 +34,17 @@ class DashboardScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Dashboard'),
         actions: [
+          // Dark mode toggle switch
+          Obx(
+            () => Switch(
+              value: Get.isDarkMode,
+              onChanged: (value) async {
+                Get.changeThemeMode(value ? ThemeMode.dark : ThemeMode.light);
+                final prefs = await SharedPreferences.getInstance();
+                await prefs.setBool('isDarkMode', value);
+              },
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.bar_chart),
             onPressed: () => Get.to(() => const ProgressScreen()),
@@ -53,9 +66,11 @@ class DashboardScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Hi, ${authController.username.value.isEmpty ? "User" : authController.username.value} 👋',
-                          style: const TextStyle(fontSize: 20),
+                        Obx(
+                          () => Text(
+                            'Hi, ${authController.username.value.isEmpty ? "User" : authController.username.value} 👋',
+                            style: const TextStyle(fontSize: 20),
+                          ),
                         ),
                         const Text(
                           'Let\'s make habits together!',
@@ -122,7 +137,7 @@ class DashboardScreen extends StatelessWidget {
                               value: isCompletedToday,
                               onChanged: (value) {
                                 habitController.markHabitCompleted(
-                                  habit.id,
+                                  habit.id!,
                                   selectedDate.value,
                                 );
                               },
@@ -141,7 +156,7 @@ class DashboardScreen extends StatelessWidget {
                                 IconButton(
                                   icon: const Icon(Icons.delete),
                                   onPressed: () {
-                                    habitController.removeHabit(habit.id);
+                                    habitController.removeHabit(habit.id!);
                                   },
                                 ),
                               ],

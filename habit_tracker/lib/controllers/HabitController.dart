@@ -1,12 +1,14 @@
-// HabitController.dart
+// lib/controllers/HabitController.dart
+
 import 'package:get/get.dart';
 import 'package:habit_tracker/controllers/AuthController.dart';
-import 'package:habit_tracker/data/habit_repository_impl.dart';
+import 'package:habit_tracker/data/habit_repository_impl.dart'
+    as habit_repo_impl;
 import 'package:habit_tracker/domain/models/habit.dart';
 import 'package:habit_tracker/domain/repositories/habit_repository.dart';
 
 class HabitController extends GetxController {
-  final HabitRepository _habitRepository = Get.find<HabitRepositoryImpl>();
+  final HabitRepository _habitRepository = Get.find<HabitRepository>();
   final AuthController _authController = Get.find<AuthController>();
   final RxList<Habit> habits = <Habit>[].obs;
   final RxBool isLoading = false.obs;
@@ -14,9 +16,13 @@ class HabitController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    _authController.userId.listen((userId) {
-      if (userId.isNotEmpty) {
+    // Listen to the user state changes in AuthController to load habits
+    _authController.user.listen((firebaseUser) {
+      if (firebaseUser != null) {
         loadHabits();
+      } else {
+        // Clear habits if the user logs out
+        habits.clear();
       }
     });
   }
@@ -24,10 +30,11 @@ class HabitController extends GetxController {
   Future<void> loadHabits() async {
     try {
       isLoading.value = true;
-      final habitsList = await _habitRepository.getHabitsForUser(
-        _authController.userId.value,
-      );
-      habits.assignAll(habitsList);
+      final userId = _authController.user.value?.uid;
+      if (userId != null) {
+        final habitsList = await _habitRepository.getHabitsForUser(userId);
+        habits.assignAll(habitsList);
+      }
     } catch (e) {
       Get.snackbar('Error', 'Failed to load habits: $e');
     } finally {
@@ -35,23 +42,16 @@ class HabitController extends GetxController {
     }
   }
 
-  Future<void> addHabit({
-    required String name,
-    required String frequency,
-    DateTime? startDate,
-  }) async {
+  Future<void> addHabit(Habit newHabit) async {
     try {
       isLoading.value = true;
-      final newHabit = Habit(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        userId: _authController.userId.value,
-        name: name,
-        frequency: frequency,
-        startDate: startDate,
-      );
-      await _habitRepository.addHabit(newHabit);
-      await loadHabits();
-      Get.snackbar('Success', 'Habit added successfully');
+      final userId = _authController.user.value?.uid;
+      if (userId != null) {
+        await _habitRepository.addHabit(newHabit.copyWith(userId: userId));
+        Get.snackbar('Success', 'Habit added successfully');
+      } else {
+        Get.snackbar('Error', 'User not authenticated.');
+      }
     } catch (e) {
       Get.snackbar('Error', 'Failed to add habit: $e');
     } finally {
@@ -59,26 +59,16 @@ class HabitController extends GetxController {
     }
   }
 
-  Future<void> editHabit({
-    required String id,
-    required String name,
-    required String frequency,
-    DateTime? startDate,
-  }) async {
+  Future<void> updateHabit(Habit updatedHabit) async {
     try {
       isLoading.value = true;
-      final existingHabit = habits.firstWhere((h) => h.id == id);
-      final updatedHabit = Habit(
-        id: id,
-        userId: existingHabit.userId,
-        name: name,
-        frequency: frequency,
-        startDate: startDate,
-        completedDates: existingHabit.completedDates,
-      );
-      await _habitRepository.updateHabit(updatedHabit);
-      await loadHabits();
-      Get.snackbar('Success', 'Habit updated successfully');
+      final userId = _authController.user.value?.uid;
+      if (userId != null) {
+        await _habitRepository.updateHabit(updatedHabit);
+        Get.snackbar('Success', 'Habit updated successfully');
+      } else {
+        Get.snackbar('Error', 'User not authenticated.');
+      }
     } catch (e) {
       Get.snackbar('Error', 'Failed to update habit: $e');
     } finally {
@@ -89,9 +79,13 @@ class HabitController extends GetxController {
   Future<void> removeHabit(String habitId) async {
     try {
       isLoading.value = true;
-      await _habitRepository.deleteHabit(habitId, _authController.userId.value);
-      await loadHabits();
-      Get.snackbar('Success', 'Habit removed successfully');
+      final userId = _authController.user.value?.uid;
+      if (userId != null) {
+        await _habitRepository.deleteHabit(habitId, userId);
+        Get.snackbar('Success', 'Habit removed successfully');
+      } else {
+        Get.snackbar('Error', 'User not authenticated.');
+      }
     } catch (e) {
       Get.snackbar('Error', 'Failed to remove habit: $e');
     } finally {
@@ -103,19 +97,25 @@ class HabitController extends GetxController {
     try {
       isLoading.value = true;
       final habit = habits.firstWhere((h) => h.id == habitId);
-      final updatedDates = habit.completedDates.contains(date)
-          ? habit.completedDates.where((d) => d != date).toList()
+      final updatedDates =
+          habit.completedDates.any(
+            (d) =>
+                d.year == date.year &&
+                d.month == date.month &&
+                d.day == date.day,
+          )
+          ? habit.completedDates
+                .where(
+                  (d) =>
+                      d.year != date.year ||
+                      d.month != date.month ||
+                      d.day != date.day,
+                )
+                .toList()
           : [...habit.completedDates, date];
-      final updatedHabit = Habit(
-        id: habit.id,
-        userId: habit.userId,
-        name: habit.name,
-        frequency: habit.frequency,
-        startDate: habit.startDate,
-        completedDates: updatedDates,
-      );
+
+      final updatedHabit = habit.copyWith(completedDates: updatedDates);
       await _habitRepository.updateHabit(updatedHabit);
-      await loadHabits();
       Get.snackbar(
         'Success',
         updatedDates.contains(date)
