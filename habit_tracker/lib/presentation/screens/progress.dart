@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter_heatmap_calendar/flutter_heatmap_calendar.dart';
 import 'package:habit_tracker/controllers/HabitController.dart';
 
 class ProgressScreen extends StatelessWidget {
@@ -17,40 +17,59 @@ class ProgressScreen extends StatelessWidget {
             ? const Center(child: CircularProgressIndicator())
             : habitController.habits.isEmpty
             ? const Center(child: Text('No habits to show'))
-            : ListView.builder(
-                itemCount: habitController.habits.length,
-                itemBuilder: (context, index) {
-                  final habit = habitController.habits[index];
-                  final completionCount = habit.completedDates.length;
-                  final weeklyCompletions = habit.completedDates
-                      .where(
-                        (d) => d.isAfter(
-                          DateTime.now().subtract(const Duration(days: 7)),
-                        ),
-                      )
-                      .length;
-                  final monthlyCompletions = habit.completedDates
-                      .where(
-                        (d) => d.isAfter(
-                          DateTime.now().subtract(const Duration(days: 30)),
-                        ),
-                      )
-                      .length;
-                  return ListTile(
-                    title: Text(habit.name),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Frequency: ${habit.frequency}'),
-                        Text('Total Completions: $completionCount'),
-                        Text('Last 7 Days: $weeklyCompletions'),
-                        Text('Last 30 Days: $monthlyCompletions'),
-                      ],
+            : Column(
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Text(
+                      'Habit Completion Heatmap',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  );
-                },
+                  ),
+                  Expanded(child: _buildHeatmap(habitController)),
+                ],
               ),
       ),
+    );
+  }
+
+  Widget _buildHeatmap(HabitController habitController) {
+    // Aggregate completion counts per day
+    final Map<DateTime, int> datasets = {};
+    for (final habit in habitController.habits) {
+      for (final date in habit.completedDates) {
+        // Normalize to date only (ignore time)
+        final normalizedDate = DateTime(date.year, date.month, date.day);
+        datasets.update(
+          normalizedDate,
+          (value) => value + 1,
+          ifAbsent: () => 1,
+        );
+      }
+    }
+
+    return HeatMapCalendar(
+      defaultColor: Colors.grey[200],
+      flexible: true,
+      colorMode: ColorMode.opacity,
+      datasets: datasets,
+      colorsets: const {
+        1: Colors.green, // Light green for 1 completion
+        2: Colors.greenAccent, // Brighter for 2
+        3: Colors.lightGreen, // Medium
+        5: Colors.green, // Darker for higher
+        7: Colors.teal, // Even more
+      },
+      onClick: (date) {
+        final count = datasets[date] ?? 0;
+        Get.snackbar(
+          'Day Details',
+          '$count habits completed on ${date.toLocal().toString().split(' ')[0]}',
+        );
+      },
     );
   }
 }
