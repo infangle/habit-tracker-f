@@ -1,23 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:habit_tracker/controllers/AuthController.dart';
 
 class LoginScreen extends StatelessWidget {
+  final AuthController authController = Get.find();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Login')),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextField(decoration: InputDecoration(labelText: 'Email')),
-            TextField(decoration: InputDecoration(labelText: 'Password')),
-            ElevatedButton(
-              onPressed: () {
-                // Implement login functionality
-              },
-              child: Text('Login'),
-            ),
-          ],
+        child: GetBuilder<AuthController>(
+          builder: (controller) => Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextField(
+                decoration: InputDecoration(labelText: 'Email'),
+                onChanged: (value) => authController.setEmail(value),
+              ),
+              TextField(
+                decoration: InputDecoration(labelText: 'Password'),
+                onChanged: (value) => authController.setPassword(value),
+              ),
+              ElevatedButton(
+                onPressed: authController.loginUser,
+                child: Text('Login'),
+              ),
+            ],
+          ),
         ),
       ),
     );
