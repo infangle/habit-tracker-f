@@ -1,67 +1,76 @@
+// AuthController.dart
 import 'package:get/get.dart';
-import 'package:habit_tracker/data/user_repository_impl.dart'; // Import the UserRepository implementation from the data layer
+import 'package:habit_tracker/data/user_repository_impl.dart';
+import 'package:habit_tracker/presentation/screens/dashboard.dart';
+import 'package:habit_tracker/presentation/screens/login.dart';
 
 class AuthController extends GetxController {
-  final UserRepositoryImpl
-  userRepository; // Change UserRepository to UserRepositoryImpl
-  AuthController(this.userRepository);
+  final UserRepositoryImpl userRepository = Get.find<UserRepositoryImpl>();
+  final RxString userId = ''.obs;
+  final RxString email = ''.obs;
+  final RxString password = ''.obs;
+  final RxString username = ''.obs;
+  final RxBool isLoading = false.obs;
 
-  RxString email = ''.obs;
-  RxString password = ''.obs;
-  RxString username = ''.obs;
+  void setEmail(String value) => email.value = value;
+  void setPassword(String value) => password.value = value;
+  void setUsername(String value) => username.value = value;
 
-  void setEmail(String value) {
-    email.value = value;
+  Future<void> loginUser() async {
+    try {
+      isLoading.value = true;
+      final id = await userRepository.login(email.value, password.value);
+      if (id != null) {
+        userId.value = id;
+        Get.off(() => DashboardScreen());
+        Get.snackbar('Success', 'Login successful!');
+      } else {
+        Get.snackbar('Error', 'Invalid email or password');
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Login failed: $e');
+    } finally {
+      isLoading.value = false;
+    }
   }
 
-  void setPassword(String value) {
-    password.value = value;
+  Future<void> signUpUser() async {
+    try {
+      isLoading.value = true;
+      final success = await userRepository.signup(
+        email.value,
+        password.value,
+        username.value,
+      );
+      if (success) {
+        final id = await userRepository.login(email.value, password.value);
+        userId.value = id ?? '';
+        Get.off(() => DashboardScreen());
+        Get.snackbar('Success', 'Signup successful!');
+      } else {
+        Get.snackbar('Error', 'Signup failed');
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Signup failed: $e');
+    } finally {
+      isLoading.value = false;
+    }
   }
 
-  void setUsername(String value) {
-    username.value = value;
-  }
-
-  void loginUser() {
-    userRepository
-        .login(
-          email.value,
-          password.value,
-        ) // Use the email and password values from the RxStrings
-        .then((success) {
-          if (success) {
-            // Handle successful login, navigate to the next screen, etc.
-            print('Login successful!');
-          } else {
-            // Handle login failure, show error message, etc.
-            print('Login failed. Please try again.');
-          }
-        })
-        .catchError((error) {
-          // Handle any errors that occur during the login process
-          print('An error occurred: $error');
-        });
-  }
-
-  void signUpUser() {
-    userRepository
-        .signup(
-          email.value,
-          password.value,
-          username.value,
-        ) // Use the email, password, and username values from the RxStrings
-        .then((success) {
-          if (success) {
-            // Handle successful signup, navigate to the next screen, etc.
-            print('Signup successful!');
-          } else {
-            // Handle signup failure, show error message, etc.
-            print('Signup failed. Please try again.');
-          }
-        })
-        .catchError((error) {
-          // Handle any errors that occur during the signup process
-          print('An error occurred: $error');
-        });
+  Future<void> logout() async {
+    try {
+      isLoading.value = true;
+      await userRepository.logout();
+      userId.value = '';
+      email.value = '';
+      password.value = '';
+      username.value = '';
+      Get.offAll(() => LoginScreen());
+      Get.snackbar('Success', 'Logged out successfully');
+    } catch (e) {
+      Get.snackbar('Error', 'Logout failed: $e');
+    } finally {
+      isLoading.value = false;
+    }
   }
 }
