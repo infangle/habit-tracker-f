@@ -1,40 +1,34 @@
-import 'package:http/http.dart' as http;
+// user_repository_impl.dart
 import 'package:habit_tracker/domain/repositories/user_repository.dart';
-import 'dart:convert';
+import 'package:habit_tracker/services/mock_api_service.dart';
 
 class UserRepositoryImpl implements UserRepository {
-  final String baseUrl =
-      'http://localhost:3000'; // Base URL for the JSON server
+  final MockApiService _apiService = MockApiService();
 
   @override
-  Future<bool> login(String email, String password) async {
-    final response = await http.get(Uri.parse('$baseUrl/users'));
-    if (response.statusCode == 200) {
-      // Parse the response body to check if the user with the given email and password exists
-      final List<dynamic> users = json.decode(response.body);
-      for (var user in users) {
-        if (user['email'] == email && user['password'] == password) {
-          return true; // Login successful
-        }
-      }
+  Future<String?> login(String email, String password) async {
+    try {
+      return await _apiService.login(email, password);
+    } catch (e) {
+      throw Exception('Login failed: $e');
     }
-    return false; // Login failed
   }
 
   @override
   Future<bool> signup(String email, String password, String username) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/users'),
-      body: json.encode({
-        'email': email,
-        'password': password,
-        'username': username,
-      }),
-      headers: {'Content-Type': 'application/json'},
-    );
-    if (response.statusCode == 201) {
-      return true; // Signup successful
+    try {
+      return await _apiService.signUp(email, password, username);
+    } catch (e) {
+      throw Exception('Signup failed: $e');
     }
-    return false; // Signup failed
+  }
+
+  @override
+  Future<void> logout() async {
+    try {
+      await _apiService.logout();
+    } catch (e) {
+      throw Exception('Logout failed: $e');
+    }
   }
 }
