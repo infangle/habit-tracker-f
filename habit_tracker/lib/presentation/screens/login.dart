@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:habit_tracker/controllers/AuthController.dart';
+import 'package:habit_tracker/domain/repositories/user_repository.dart';
 
 class LoginScreen extends StatelessWidget {
   final AuthController authController = Get.find();
