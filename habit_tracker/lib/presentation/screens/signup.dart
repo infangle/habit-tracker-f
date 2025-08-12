@@ -9,6 +9,9 @@ class SignupScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final AuthController authController = Get.find();
+    final TextEditingController emailController = TextEditingController();
+    final TextEditingController usernameController = TextEditingController();
+    final TextEditingController passwordController = TextEditingController();
 
     return Scaffold(
       appBar: AppBar(title: const Text('Sign Up')),
@@ -19,34 +22,41 @@ class SignupScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               TextField(
+                controller: emailController,
                 decoration: const InputDecoration(
                   labelText: 'Email',
                   border: OutlineInputBorder(),
                 ),
-                onChanged: authController.setEmail,
+                keyboardType: TextInputType.emailAddress,
               ),
               const SizedBox(height: 16),
               TextField(
+                controller: usernameController,
                 decoration: const InputDecoration(
                   labelText: 'Username',
                   border: OutlineInputBorder(),
                 ),
-                onChanged: authController.setUsername,
               ),
               const SizedBox(height: 16),
               TextField(
+                controller: passwordController,
                 decoration: const InputDecoration(
                   labelText: 'Password',
                   border: OutlineInputBorder(),
                 ),
                 obscureText: true,
-                onChanged: authController.setPassword,
               ),
               const SizedBox(height: 16),
               authController.isLoading.value
                   ? const CircularProgressIndicator()
                   : ElevatedButton(
-                      onPressed: authController.signUpUser,
+                      onPressed: () {
+                        authController.signup(
+                          emailController.text.trim(),
+                          passwordController.text.trim(),
+                          usernameController.text.trim(),
+                        );
+                      },
                       child: const Text('Sign Up'),
                     ),
               const SizedBox(height: 8),

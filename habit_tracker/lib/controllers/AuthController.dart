@@ -1,57 +1,72 @@
-// AuthController.dart
+// lib/controllers/AuthController.dart
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
-import 'package:habit_tracker/data/user_repository_impl.dart';
 import 'package:habit_tracker/presentation/screens/dashboard.dart';
 import 'package:habit_tracker/presentation/screens/login.dart';
+import 'package:habit_tracker/domain/repositories/user_repository.dart';
 
 class AuthController extends GetxController {
-  final UserRepositoryImpl userRepository = Get.find<UserRepositoryImpl>();
-  final RxString userId = ''.obs;
-  final RxString email = ''.obs;
-  final RxString password = ''.obs;
-  final RxString username = ''.obs;
+  final UserRepository _userRepository = Get.find<UserRepository>();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  // The RxBool keeps track of the loading state for UI feedback.
   final RxBool isLoading = false.obs;
 
-  void setEmail(String value) => email.value = value;
-  void setPassword(String value) => password.value = value;
-  void setUsername(String value) => username.value = value;
+  // The Rx<User?> stores the current authenticated user.
+  // We use Rx to make it observable for reactive programming.
+  final Rx<User?> user = Rx<User?>(null);
 
-  Future<void> loginUser() async {
-    try {
-      isLoading.value = true;
-      final id = await userRepository.login(email.value, password.value);
-      if (id != null) {
-        userId.value = id;
-        Get.off(() => DashboardScreen());
-        Get.snackbar('Success', 'Login successful!');
+  // The RxString stores the user's username.
+  final RxString username = ''.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    // This listener will automatically update the user state whenever
+    // the authentication state changes (login, logout, etc.).
+    _auth.authStateChanges().listen((User? firebaseUser) async {
+      user.value = firebaseUser;
+      if (firebaseUser != null) {
+        await _fetchUsername(firebaseUser.uid);
+        Get.offAll(() => const DashboardScreen());
       } else {
-        Get.snackbar('Error', 'Invalid email or password');
+        username.value = '';
+        Get.offAll(() => LoginScreen());
+      }
+    });
+  }
+
+  Future<void> _fetchUsername(String uid) async {
+    try {
+      final doc = await _firestore.collection('users').doc(uid).get();
+      if (doc.exists) {
+        username.value = doc.data()?['username'] ?? '';
       }
     } catch (e) {
-      Get.snackbar('Error', 'Login failed: $e');
+      Get.snackbar('Error', 'Failed to fetch username: $e');
+    }
+  }
+
+  Future<void> login(String email, String password) async {
+    try {
+      isLoading.value = true;
+      await _userRepository.login(email, password);
+    } catch (e) {
+      Get.snackbar('Login Failed', e.toString());
     } finally {
       isLoading.value = false;
     }
   }
 
-  Future<void> signUpUser() async {
+  Future<void> signup(String email, String password, String username) async {
     try {
       isLoading.value = true;
-      final success = await userRepository.signup(
-        email.value,
-        password.value,
-        username.value,
-      );
-      if (success) {
-        final id = await userRepository.login(email.value, password.value);
-        userId.value = id ?? '';
-        Get.off(() => DashboardScreen());
-        Get.snackbar('Success', 'Signup successful!');
-      } else {
-        Get.snackbar('Error', 'Signup failed');
-      }
+      await _userRepository.signup(email, password, username);
     } catch (e) {
-      Get.snackbar('Error', 'Signup failed: $e');
+      Get.snackbar('Signup Failed', e.toString());
     } finally {
       isLoading.value = false;
     }
@@ -60,15 +75,9 @@ class AuthController extends GetxController {
   Future<void> logout() async {
     try {
       isLoading.value = true;
-      await userRepository.logout();
-      userId.value = '';
-      email.value = '';
-      password.value = '';
-      username.value = '';
-      Get.offAll(() => LoginScreen());
-      Get.snackbar('Success', 'Logged out successfully');
+      await _userRepository.logout();
     } catch (e) {
-      Get.snackbar('Error', 'Logout failed: $e');
+      Get.snackbar('Logout Failed', e.toString());
     } finally {
       isLoading.value = false;
     }
