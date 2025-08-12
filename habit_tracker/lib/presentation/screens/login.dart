@@ -5,6 +5,8 @@ import 'package:habit_tracker/controllers/AuthController.dart';
 class LoginScreen extends StatelessWidget {
   final AuthController authController = Get.find();
 
+  LoginScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
