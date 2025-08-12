@@ -1,5 +1,5 @@
 import 'package:http/http.dart' as http;
-import 'package:habit_tracker/domain/user_repository.dart';
+import 'package:habit_tracker/domain/repositories/user_repository.dart';
 import 'dart:convert';
 
 class UserRepositoryImpl implements UserRepository {
