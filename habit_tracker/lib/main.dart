@@ -18,17 +18,16 @@ import 'package:habit_tracker/services/firebase_messaging_service.dart';
 import 'package:habit_tracker/data/local_storage/habit_local_data_source.dart';
 import 'package:habit_tracker/domain/repositories/habit_repository.dart';
 import 'package:habit_tracker/domain/repositories/user_repository.dart';
+import 'firebase_options.dart';
 
-// Assuming you have your firebase_options.dart file from your Firebase project
-// import 'firebase_options.dart';
-
-Future<void> main() async {
+void main() async {
   // Ensure that the Flutter framework is initialized before using plugins.
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize Firebase to enable all Firebase services.
   await Firebase.initializeApp(
-    // options: DefaultFirebaseOptions.currentPlatform, // Uncomment with your firebase options
+    options: DefaultFirebaseOptions
+        .currentPlatform, // Uncomment with your firebase options
   );
 
   // Initialize Hive for local data storage for offline support.
