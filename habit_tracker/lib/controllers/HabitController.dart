@@ -2,8 +2,6 @@
 
 import 'package:get/get.dart';
 import 'package:habit_tracker/controllers/AuthController.dart';
-import 'package:habit_tracker/data/habit_repository_impl.dart'
-    as habit_repo_impl;
 import 'package:habit_tracker/domain/models/habit.dart';
 import 'package:habit_tracker/domain/repositories/habit_repository.dart';
 

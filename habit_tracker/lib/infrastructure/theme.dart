@@ -21,15 +21,15 @@ final ThemeData lightTheme = ThemeData(
     bodyMedium: TextStyle(color: Colors.black54),
   ),
   switchTheme: SwitchThemeData(
-    thumbColor: MaterialStateProperty.resolveWith(
-      (states) => states.contains(MaterialState.selected)
+    thumbColor: WidgetStateProperty.resolveWith(
+      (states) => states.contains(WidgetState.selected)
           ? Colors.deepPurple
           : Colors.grey,
     ),
-    trackColor: MaterialStateProperty.resolveWith(
-      (states) => states.contains(MaterialState.selected)
-          ? Colors.deepPurple.withOpacity(0.5)
-          : Colors.grey.withOpacity(0.5),
+    trackColor: WidgetStateProperty.resolveWith(
+      (states) => states.contains(WidgetState.selected)
+          ? Colors.deepPurple
+          : Colors.grey,
     ),
   ),
 );
@@ -52,15 +52,15 @@ final ThemeData darkTheme = ThemeData(
     bodyMedium: TextStyle(color: Colors.white54),
   ),
   switchTheme: SwitchThemeData(
-    thumbColor: MaterialStateProperty.resolveWith(
-      (states) => states.contains(MaterialState.selected)
+    thumbColor: WidgetStateProperty.resolveWith(
+      (states) => states.contains(WidgetState.selected)
           ? Colors.deepPurple[200]
           : Colors.grey,
     ),
-    trackColor: MaterialStateProperty.resolveWith(
-      (states) => states.contains(MaterialState.selected)
-          ? Colors.deepPurple[200]!.withOpacity(0.5)
-          : Colors.grey.withOpacity(0.5),
+    trackColor: WidgetStateProperty.resolveWith(
+      (states) => states.contains(WidgetState.selected)
+          ? Colors.deepPurple[200]
+          : Colors.grey,
     ),
   ),
 );
